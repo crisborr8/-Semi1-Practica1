@@ -1,10 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 
+import FileUploadComponent from '../fileUpload/upload.js';
 import './login.css';
 
 function Login() {
+    const [params] = useState(
+    {
+      cantidad: 1,
+      width: '90%',
+      height: '100%'
+    });
   return (
     <>
+        <head>
+        <link rel="stylesheet" href="https://unicons.iconscout.com/release/v2.1.9/css/unicons.css"/>
+        </head>
         <div class="section">
             <div class="container">
                 <div class="row full-height justify-content-center">
@@ -21,7 +31,7 @@ function Login() {
                                                 <h4 class="mb-4 pb-3">Log In</h4>
                                                 <div class="form-group">
                                                     <input type="email" name="logemail" class="form-style" placeholder="Usuario" id="logemail" autocomplete="off"/>
-                                                    <i class="input-icon uil uil-at"></i>
+                                                    <i class="input-icon uil uil-user"></i>
                                                 </div>	
                                                 <div class="form-group mt-2">
                                                     <input type="password" name="logpass" class="form-style" placeholder="Contraseña" id="logpass" autocomplete="off"/>
@@ -38,11 +48,11 @@ function Login() {
                                                 <h4 class="mb-4 pb-3">Registro</h4>
                                                 <div class="form-group">
                                                     <input type="text" name="logname" class="form-style" placeholder="Nombre completo" id="logname" autocomplete="off"/>
-                                                    <i class="input-icon uil uil-user"></i>
+                                                    <i class="input-icon uil uil-users-alt"></i>
                                                 </div>	
                                                 <div class="form-group mt-2">
                                                     <input type="text" name="username" class="form-style" placeholder="Nombre de usuario" id="username" autocomplete="off"/>
-                                                    <i class="input-icon uil uil-at"></i>
+                                                    <i class="input-icon uil uil-user"></i>
                                                 </div>	
                                                 <div class="form-group mt-2">
                                                     <input type="password" name="logpass1" class="form-style" placeholder="Contraseña" id="logpass1" autocomplete="off"/>
@@ -51,6 +61,9 @@ function Login() {
                                                 <div class="form-group mt-2">
                                                     <input type="password" name="logpass2" class="form-style" placeholder="Confirme su contraseña" id="logpass2" autocomplete="off"/>
                                                     <i class="input-icon uil uil-lock-alt"></i>
+                                                </div>
+                                                <div class="form-group mt-2">
+                                                    <FileUploadComponent params={params}/>
                                                 </div>
                                                 <a href="#" class="btn mt-4">Registrarme</a>
                                             </div>
