@@ -75,8 +75,8 @@ h6 span{
   border-radius: 50%;
   color: #ffeba7;
   background-color: #102770;
-  font-family: 'unicons';
-  content: '\eb4f';
+  font-family: "Font Awesome 5 Free";
+  content: url('https://api.iconify.design/mdi/pokemon-go.svg?color=%23ffeba7&width=36&height=36');
   z-index: 20;
   top: -10px;
   left: -10px;
@@ -86,7 +86,7 @@ h6 span{
   transition: all 0.5s ease;
 }
 .checkbox:checked + label:before {
-  transform: translateX(44px) rotate(-270deg);
+  transform: translateX(44px) rotate(-360deg);
 }
 
 
@@ -94,7 +94,7 @@ h6 span{
   position: relative;
   width: 440px;
   max-width: 100%;
-  height: 400px;
+  height: 650px;
   -webkit-transform-style: preserve-3d;
   transform-style: preserve-3d;
   perspective: 800px;
