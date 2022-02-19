@@ -11,9 +11,11 @@ import Crear_Album from "./crear_album/crear_album.js";
 import Ver_Album from "./ver_album/ver_album.js";
 import Editar from "./editar/editar.js";
 
+import Login from "../login/login.js";
+
 function Salir(){
     sessionStorage.setItem("userToken", '');
-    window.location.href = '/';
+    this.setState({isLoogedIn: false})
 }
 
 class Inicio extends Component {
@@ -22,6 +24,7 @@ class Inicio extends Component {
         this.state = {
             link: 'ver',
             class: [' active_link ', '', '', '', '', ''],
+            isLoogedIn: true
         };
     }
     changeScreen(screen, idClassActive){
@@ -33,6 +36,7 @@ class Inicio extends Component {
         });
     }
     render (){
+        if (!this.state.isLoogedIn) return <Login/>
         return (
         <>
             <head>
