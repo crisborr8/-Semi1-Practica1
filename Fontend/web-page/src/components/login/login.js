@@ -3,6 +3,12 @@ import React, { useState } from 'react';
 import FileUploadComponent from '../fileUpload/upload.js';
 import './login.css';
 
+function ingresar(){
+    sessionStorage.setItem("userToken", '');
+    window.location.href = '/home';
+}
+
+
 function Login() {
     const [params] = useState(
     {
@@ -37,7 +43,7 @@ function Login() {
                                                     <input type="password" name="logpass" class="form-style" placeholder="Contraseña" id="logpass" autocomplete="off"/>
                                                     <i class="input-icon uil uil-lock-alt"></i>
                                                 </div>
-                                                <a href="#" class="btn mt-4">Ingresar</a>
+                                                <a href="#" class="btn mt-4" onClick={() => ingresar()}>Ingresar</a>
                                                 <p class="mb-0 mt-4 text-center"><a href="#0" class="link">¿Olvidaste tu contraseña?</a></p>
                                             </div>
                                         </div>

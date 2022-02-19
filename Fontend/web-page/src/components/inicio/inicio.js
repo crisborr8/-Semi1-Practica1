@@ -1,129 +1,103 @@
-import React from 'react';
+import React, { Component } from 'react';
 
 import './inicio.css';
+import './dropdown.css';
 
-function Inicio() {
-  return (
-    <>
-        <head>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script> 
-        </head>
-        <div class="container emp-profile">
-            <form method="post">
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="profile-img">
-                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS52y5aInsxSm31CvHOFHWujqUx_wWTS9iM6s7BAm21oEN_RiGoog" alt=""/>
-                            <div class="file btn btn-lg btn-primary">
-                                Cambiar foto
-                                <input type="file" name="file"/>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="profile-head">
-                                    <h5>
-                                        Nombre Usuario
-                                    </h5>
-                                    <h6>
-                                        Nombre completo del usuario
-                                    </h6>
-                                    <p class="proile-rating">Albums creados - <span>13</span></p>
-                                    <p class="proile-rating">Fotografias subidas - <span>810</span></p>
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <input type="submit" class="btn text-muted" name="btnAddMore" value="Editar"/>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="profile-work">
-                            <p>Albums</p>
-                            <a href="">Crear album</a><br/>
-                            <a href="">Eliminar album</a><br/>
-                            <p>Fotos</p>
-                            <a href="">Ver todas las fotos</a><br/>
-                            <a href="">Subir foto en album</a><br/>
-                        </div>
-                    </div>
-                    <div class="col-md-8">
-                        <div class="tab-content profile-tab" id="myTabContent">
-                            <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
-                               <div class="py-4 px-4">
-                                    <div class="d-flex align-items-center justify-content-between mb-3">
-                                        <h5 class="mb-0">Ultimas fotografias subidas</h5><a href="#" class="btn text-muted">Mostrar todo</a>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-lg-4 mb-4 pr-lg-1"><img src="https://bootstrapious.com/i/snippets/sn-profile/img-3.jpg" alt="" class="img-fluid rounded shadow-sm"/></div>
-                                        <div class="col-lg-4 mb-4 pl-lg-1"><img src="https://bootstrapious.com/i/snippets/sn-profile/img-4.jpg" alt="" class="img-fluid rounded shadow-sm"/></div>
-                                        <div class="col-lg-4 mb-4 pl-lg-1"><img src="https://bootstrapious.com/i/snippets/sn-profile/img-5.jpg" alt="" class="img-fluid rounded shadow-sm"/></div>
-                                        <div class="col-lg-4 mb-4 pl-lg-1"><img src="https://bootstrapious.com/i/snippets/sn-profile/img-6.jpg" alt="" class="img-fluid rounded shadow-sm"/></div>
-                                        <div class="col-lg-4 mb-4 pr-lg-1"><img src="https://bootstrapious.com/i/snippets/sn-profile/img-3.jpg" alt="" class="img-fluid rounded shadow-sm"/></div>
-                                        <div class="col-lg-4 mb-4 pl-lg-1"><img src="https://bootstrapious.com/i/snippets/sn-profile/img-4.jpg" alt="" class="img-fluid rounded shadow-sm"/></div>
-                                        <div class="col-lg-4 mb-4 pl-lg-1"><img src="https://bootstrapious.com/i/snippets/sn-profile/img-5.jpg" alt="" class="img-fluid rounded shadow-sm"/></div>
-                                        <div class="col-lg-4 mb-4 pl-lg-1"><img src="https://bootstrapious.com/i/snippets/sn-profile/img-6.jpg" alt="" class="img-fluid rounded shadow-sm"/></div>
-                                        <div class="col-lg-4 mb-4 pr-lg-1"><img src="https://bootstrapious.com/i/snippets/sn-profile/img-3.jpg" alt="" class="img-fluid rounded shadow-sm"/></div>
-                                        <div class="col-lg-4 mb-4 pl-lg-1"><img src="https://bootstrapious.com/i/snippets/sn-profile/img-4.jpg" alt="" class="img-fluid rounded shadow-sm"/></div>
-                                        <div class="col-lg-4 mb-4 pl-lg-1"><img src="https://bootstrapious.com/i/snippets/sn-profile/img-5.jpg" alt="" class="img-fluid rounded shadow-sm"/></div>
-                                        <div class="col-lg-4 mb-4 pl-lg-1"><img src="https://bootstrapious.com/i/snippets/sn-profile/img-6.jpg" alt="" class="img-fluid rounded shadow-sm"/></div>
-                                    </div>
+import Ver_fotos from "./ver_fotos/ver_fotos.js";
+import Subir_fotos from "./subir_fotos/subir_fotos.js";
+
+import Editar_Album from "./editar_album/editar_album.js";
+import Crear_Album from "./crear_album/crear_album.js";
+import Ver_Album from "./ver_album/ver_album.js";
+import Editar from "./editar/editar.js";
+
+function Salir(){
+    sessionStorage.setItem("userToken", '');
+    window.location.href = '/';
+}
+
+class Inicio extends Component {
+    constructor(props){
+        super(props);
+        this.state = {
+            link: 'ver',
+            class: [' active_link ', '', '', '', '', ''],
+        };
+    }
+    changeScreen(screen, idClassActive){
+        let newClass = ['', '', '', '', '', ''];
+        newClass[idClassActive] = ' active_link ';
+        this.setState({
+            link: screen,
+            class: newClass
+        });
+    }
+    render (){
+        return (
+        <>
+            <head>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script> 
+            <link rel="stylesheet" href="https://unicons.iconscout.com/release/v2.1.9/css/unicons.css"/>
+            </head>
+            <div class="container emp-profile">
+                <form method="post">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="profile-img">
+                                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS52y5aInsxSm31CvHOFHWujqUx_wWTS9iM6s7BAm21oEN_RiGoog" alt=""/>
+                                <div class="file btn btn-lg btn-primary">
+                                    Cambiar foto
+                                    <input type="file" name="file"/>
                                 </div>
                             </div>
-                            <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <label>Experience</label>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <p>Expert</p>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <label>Hourly Rate</label>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <p>10$/hr</p>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <label>Total Projects</label>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <p>230</p>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <label>English Level</label>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <p>Expert</p>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <label>Availability</label>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <p>6 months</p>
-                                            </div>
-                                        </div>
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <label>Your Bio</label><br/>
-                                        <p>Your detail description</p>
-                                    </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="profile-head">
+                                <h5>
+                                    Nombre Usuario
+                                </h5>
+                                <h6>
+                                    Nombre completo del usuario
+                                </h6>
+                                <p class="proile-rating">Albums creados - <span>13</span></p>
+                                <p class="proile-rating">Fotografias subidas - <span>810</span></p>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <a  onClick={() => this.changeScreen('modifiar', 0)} class="btn mt-4">Editar</a>
+                            <a  onClick={() => Salir()} class="btn mt-4">Salir</a>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="profile-work">
+                                <p>Inicio</p>
+                                <a href="#" onClick={() => this.changeScreen('ver', 1)} class={this.state.class[1]}>Ir a inicio</a><br/>
+                                <p>Albums</p>
+                                <a href="#" onClick={() => this.changeScreen('crear_album', 2)} class={this.state.class[2]}>Crear album</a><br/>
+                                <a href="#" onClick={() => this.changeScreen('editar_album', 3)} class={this.state.class[3]}>Editar album</a><br/>
+                                <p>Fotos</p>
+                                <a href="#" onClick={() => this.changeScreen('ver_fotos', 4)} class={this.state.class[4]}>Ver todas las fotos</a><br/>
+                                <a href="#" onClick={() => this.changeScreen('subir_fotos', 5)} class={this.state.class[5]}>Subir foto en album</a><br/>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="tab-content profile-tab" id="myTabContent">
+                                <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                                    {this.state.link === 'ver' && <Ver_Album/>}
+                                    {this.state.link === 'modifiar' && <Editar/>}
+                                    {this.state.link === 'crear_album' && <Crear_Album/>}
+                                    {this.state.link === 'editar_album' && <Editar_Album/>}
+                                    {this.state.link === 'ver_fotos' && <Ver_fotos/>}
+                                    {this.state.link === 'subir_fotos' && <Subir_fotos/>}
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </form>           
-        </div>
-    </>
-  );
+                </form>           
+            </div>
+        </>
+        );
+    }
 }
 export default Inicio
