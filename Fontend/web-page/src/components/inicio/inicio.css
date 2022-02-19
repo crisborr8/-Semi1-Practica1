@@ -1,4 +1,11 @@
 
+body{
+	font-family: 'Roboto', sans-serif;
+    background-image: url('https://s3-us-west-2.amazonaws.com/s.cdpn.io/1462889/pat-back.svg');
+    background-position: center;
+    background-repeat: repeat;
+    background-size: 4%;
+}
 .emp-profile{
     padding: 3%;
     margin-top: 3%;
@@ -21,7 +28,12 @@
     border: none;
     border-radius: 0;
     font-size: 15px;
+    background: #2125293f;
+    color: #21252942;
+}
+.profile-img .file:hover {
     background: #212529b8;
+    color: #ffeba7;
 }
 .profile-img .file input {
     position: absolute;
@@ -90,4 +102,17 @@
 .profile-tab p{
     font-weight: 600;
     color: #0062cc;
+}
+a:hover {
+    color: #102770;
+    background-color: #ffeba7;
+  }
+
+.active_link{
+    color: #102770;
+    background-color: #ffeba7;
+}
+#home{
+    height: 550px;
+    overflow: auto;
 }
