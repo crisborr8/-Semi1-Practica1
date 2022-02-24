@@ -40,7 +40,16 @@ def allUsers():
     cur.execute(sql)
     data = cur.fetchall()
     cur.close()
-    return jsonify(data)
+    data_ = []
+    for row in data:
+        usuario = {
+            "idusuario": row[0],
+            "username": row[1],
+            "name": row[2],
+            "contra": row[3]
+        }
+        data_.append(usuario)
+    return jsonify(data_)
 
 @app.route('/login', methods=['POST'])
 def oneUser():
@@ -56,7 +65,16 @@ def oneUser():
     data = cur.fetchall()
     cur.close()
     if len(data) > 0:#user found
-        return jsonify(data[0])
+        data_ = []
+        for row in data:
+            usuario = {
+                "idusuario": row[0],
+                "username": row[1],
+                "name": row[2],
+                "contra": row[3]
+            }
+            data_.append(usuario)
+        return jsonify(data_)
     else:
         #no user found
         return jsonify(data)
@@ -74,7 +92,10 @@ def userPhoto():
     foto = obj.get('Body').read()
     #decode buffer
     foto = base64.b64encode(foto).decode('utf-8')
-    return jsonify(foto)
+    foto_ = {
+        "foto": foto
+    }
+    return jsonify(foto_)
 
 @app.route('/editUser', methods=['PATCH'])
 def editUser():
