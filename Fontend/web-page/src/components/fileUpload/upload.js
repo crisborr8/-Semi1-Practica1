@@ -11,7 +11,13 @@ const FileUploadComponent = ({params}) => {
         console.log(status, meta, file) 
     }
     const onSubmit = (files, allFiles) => {
-        allFiles.forEach(f => f.remove())
+        console.log("*****");
+        console.log(files.map(f => f.meta));
+        console.log("----");
+        params.reg_files = files;
+        /*allFiles.forEach(f => {
+            f.remove()
+        })*/
     }
     const getFilesFromEvent = e => {
         return new Promise(resolve => {
@@ -46,7 +52,7 @@ const FileUploadComponent = ({params}) => {
             InputComponent={selectFileInput}
             getUploadParams={fileParams}
             getFilesFromEvent={getFilesFromEvent}
-            accept="image/*,audio/*,video/*"
+            accept="image/*"
             maxFiles={params.cantidad}
             inputContent="Colocalo aquí"
             styles={{

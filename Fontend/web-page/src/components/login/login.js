@@ -1,4 +1,4 @@
-import React, { Component, useState } from 'react';
+import React, { Component } from 'react';
 
 import Inicio from "../inicio/inicio.js";
 import FileUploadComponent from '../fileUpload/upload.js';
@@ -11,14 +11,132 @@ class Login extends Component {
             params: {
                 cantidad: 1,
                 width: '90%',
-                height: '100%'
+                height: '100%',
+                reg_files: []
             },
             isLoogedIn: false,
+            login_user: '',
+            login_psw: '',
+            reg_user: '',
+            reg_name: '',
+            reg_psw1: '',
+            reg_psw2: '',
+            reg_files: []
         };
     }
+    login_setUser(evt){
+        this.setState({
+            login_user: evt.target.value
+        });
+    }
+    login_setPsw(evt){
+        this.setState({
+            login_psw: evt.target.value
+        });
+    }
+    reg_setUser(evt){
+        this.setState({
+            reg_user: evt.target.value
+        });
+    }
+    reg_setName(evt){
+        this.setState({
+            reg_name: evt.target.value
+        });
+    }
+    reg_setPsw1(evt){
+        this.setState({
+            reg_psw1: evt.target.value
+        });
+    }
+    reg_setPsw2(evt){
+        this.setState({
+            reg_psw2: evt.target.value
+        });
+    }
     ingresar(){
-        sessionStorage.setItem("userToken", '');
-        this.setState({isLoogedIn: true})
+        //const url = 'https://reqres.in/api/posts';
+        const url = 'http://54.145.134.132:3000/login';
+        console.log(this.state.login_user);
+        console.log(this.state.login_psw);
+        const requestOptions = {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Credentials": "true"
+            },
+            body: JSON.stringify({ 
+                username: this.state.login_user,
+                contra: this.state.login_psw
+            })
+        };
+        fetch(url, requestOptions).then(response => response.json()).then(data => {
+            console.log(data)
+            //sessionStorage.setItem("userToken", '');
+            //this.setState({isLoogedIn: true})
+        });
+    }
+    getBase64 = file => {
+        return new Promise(resolve => {
+          let fileInfo;
+          let baseURL = "";
+          // Make new FileReader
+          let reader = new FileReader();
+    
+          // Convert the file to base64 text
+          reader.readAsDataURL(file);
+    
+          // on reader load somthing...
+          reader.onload = () => {
+            // Make a fileInfo Object
+            console.log("Called", reader);
+            baseURL = reader.result;
+            console.log(baseURL);
+            resolve(baseURL);
+          };
+          console.log(fileInfo);
+        });
+      };
+    registro(){
+        const url = 'http://54.145.134.132:3000/newUser';
+        console.log(this.state.reg_name);
+        console.log(this.state.reg_user);
+        console.log(this.state.reg_psw1);
+        console.log(this.state.reg_psw2);
+        console.log(this.state.reg_psw2);
+        console.log(this.state.params.reg_files);
+        this.state.params.reg_files.forEach(f => {
+            var file = f.file
+            console.log(file);
+            this.getBase64(file).then(result => {
+                file["base64"] = result;
+                console.log("File Is", file);
+                this.setState({
+                base64URL: result,
+                file
+                });
+            })
+            .catch(err => {
+                console.log(err);
+            });
+        })
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                usernamesr: this.state.reg_user,
+                name: this.state.reg_name,
+                contra: this.state.reg_psw1,
+                foto: this.state.base64URL
+            })
+        };
+        fetch(url, requestOptions).then(response => response.json()).then(data => {
+            console.log(data)
+            //sessionStorage.setItem("userToken", '');
+            //this.setState({isLoogedIn: true})
+        });
+        
     }
     render(){
         if (this.state.isLoogedIn) return <Inicio/>
@@ -42,11 +160,11 @@ class Login extends Component {
                                                   <div class="section text-center">
                                                       <h4 class="mb-4 pb-3">Log In</h4>
                                                       <div class="form-group">
-                                                          <input type="email" name="logemail" class="form-style" placeholder="Usuario" id="logemail" autocomplete="off"/>
+                                                          <input value={this.state.login_user} onChange={evt => this.login_setUser(evt)} type="email" name="logemail" class="form-style" placeholder="Usuario" id="logemail" autocomplete="off"/>
                                                           <i class="input-icon uil uil-user"></i>
                                                       </div>	
                                                       <div class="form-group mt-2">
-                                                          <input type="password" name="logpass" class="form-style" placeholder="Contraseña" id="logpass" autocomplete="off"/>
+                                                          <input value={this.state.login_psw} onChange={evt => this.login_setPsw(evt)} type="password" name="logpass" class="form-style" placeholder="Contraseña" id="logpass" autocomplete="off"/>
                                                           <i class="input-icon uil uil-lock-alt"></i>
                                                       </div>
                                                       <a href="#" class="btn mt-4" onClick={() => this.ingresar()}>Ingresar</a>
@@ -59,25 +177,25 @@ class Login extends Component {
                                                   <div class="section text-center">
                                                       <h4 class="mb-4 pb-3">Registro</h4>
                                                       <div class="form-group">
-                                                          <input type="text" name="logname" class="form-style" placeholder="Nombre completo" id="logname" autocomplete="off"/>
+                                                          <input value={this.state.reg_user} onChange={evt => this.reg_setUser(evt)} type="text" name="logname" class="form-style" placeholder="Nombre completo" id="logname" autocomplete="off"/>
                                                           <i class="input-icon uil uil-users-alt"></i>
                                                       </div>	
                                                       <div class="form-group mt-2">
-                                                          <input type="text" name="username" class="form-style" placeholder="Nombre de usuario" id="username" autocomplete="off"/>
+                                                          <input value={this.state.reg_name} onChange={evt => this.reg_setName(evt)} type="text" name="username" class="form-style" placeholder="Nombre de usuario" id="username" autocomplete="off"/>
                                                           <i class="input-icon uil uil-user"></i>
                                                       </div>	
                                                       <div class="form-group mt-2">
-                                                          <input type="password" name="logpass1" class="form-style" placeholder="Contraseña" id="logpass1" autocomplete="off"/>
+                                                          <input value={this.state.reg_psw1} onChange={evt => this.reg_setPsw1(evt)} type="password" name="logpass1" class="form-style" placeholder="Contraseña" id="logpass1" autocomplete="off"/>
                                                           <i class="input-icon uil uil-lock-alt"></i>
                                                       </div>
                                                       <div class="form-group mt-2">
-                                                          <input type="password" name="logpass2" class="form-style" placeholder="Confirme su contraseña" id="logpass2" autocomplete="off"/>
+                                                          <input value={this.state.reg_psw2} onChange={evt => this.reg_setPsw2(evt)} type="password" name="logpass2" class="form-style" placeholder="Confirme su contraseña" id="logpass2" autocomplete="off"/>
                                                           <i class="input-icon uil uil-lock-alt"></i>
                                                       </div>
                                                       <div class="form-group mt-2">
                                                           <FileUploadComponent params={this.state.params}/>
                                                       </div>
-                                                      <a href="#" class="btn mt-4">Registrarme</a>
+                                                      <a href="#" onClick={() => this.registro()} class="btn mt-4">Registrarme</a>
                                                   </div>
                                               </div>
                                           </div>
