@@ -1,17 +1,20 @@
 from __main__ import app, mysql, client
-from crypt import methods
 from datetime import datetime
-from os import times
 from flask import jsonify, request
 import base64
 import os
 
 @app.route('/newAlbum', methods=['POST'])
 def newAlbum():
+    #result
+    result = {
+        'error': '',
+        'msg': ''
+    }
     #data from request
     data = request.get_json()
-    album = data.get('album')
     idusuario = data.get('idusuario')
+    album = data.get('album')
     #query
     sql = "SELECT * FROM album WHERE nombre = '{}' AND idusuario = {}".format(album, idusuario)
     #execute query
@@ -23,17 +26,28 @@ def newAlbum():
             sql = "INSERT INTO album (nombre,idusuario) VALUES ('{}',{})".format(album,idusuario)
             cur.execute(sql)
             mysql.connection.commit()
-            cur.close()
-            return "album added: {}".format(album)
+            #set result
+            result['error'] = 'false'
+            result['msg'] = 'Album creado con exito'
         else:#album already exist
-            cur.close()
-            return "Error, this album '{}' already exist".format(album)
+            #set result
+            result['error'] = 'true'
+            result['msg'] = 'El album ya existe'
     except:#error creating user
+        #set result
+        result['error'] = 'true'
+        result['msg'] = 'Error al crear album'
+    finally:
         cur.close()
-        return "Error adding album"
+    return jsonify(result)
 
 @app.route('/userAlbum',methods=['POST'])
 def album():
+    #result
+    result = {
+        'error': '',
+        'msg': ''
+    }
     #data from request
     data = request.get_json()
     idusuario = data.get('idusuario')
@@ -44,7 +58,6 @@ def album():
     try:#create user
         cur.execute(sql)
         data = cur.fetchall()
-        cur.close()
         data_ = []
         for row in data:
             album = {
@@ -53,13 +66,24 @@ def album():
                 "idusuario": row[2]
             }
             data_.append(album)
-        return jsonify(data_)
+        #set result
+        result['error'] = 'false'
+        result['msg'] = data_
     except:#error creating user
+        #set result
+        result['error'] = 'true'
+        result['msg'] = 'Error obteniendo albums'
+    finally:
         cur.close()
-        return "Error getting albums"
+    return jsonify(result)
 
 @app.route('/newPhoto', methods=['POST'])
 def newPhoto():
+    #result
+    result = {
+        'error': '',
+        'msg': ''
+    }
     #data from request
     data = request.get_json()
     idalbum = data.get('idalbum')
@@ -76,20 +100,31 @@ def newPhoto():
     try:#create user
         cur.execute(sql)
         mysql.connection.commit()
-        cur.close()
+        #save in s3
         client.put_object(
             Body = foto64,
             Bucket = os.environ['BUCKET'],
             Key = 'fotos/{}.jpg'.format(valor),
             ContentType = 'image'
         )
-        return "photo added: {}".format(nombre)
+        #set result
+        result['error'] = 'false'
+        result['msg'] = 'Foto creada con exito'
     except:#error creating user
+        #set result
+        result['error'] = 'true'
+        result['msg'] = 'Error al crear foto'
+    finally:
         cur.close()
-        return "Error adding photo"
+    return jsonify(result)
 
 @app.route('/userPhotos', methods=['POST'])
 def userPhotos():
+    #result
+    result = {
+        'error': '',
+        'msg': ''
+    }
     #data from request
     data = request.get_json()
     idalbum = data.get('idalbum')
@@ -100,7 +135,6 @@ def userPhotos():
     try:#create user
         cur.execute(sql)
         data = cur.fetchall()
-        cur.close()
         data_ = []
         for row in data:
             album = {
@@ -108,31 +142,61 @@ def userPhotos():
                 "valor": row[1]
             }
             data_.append(album)
-        return jsonify(data_)
-    except:#error creating user
+        #set result
+        result['error'] = 'false'
+        result['msg'] = data_
+    except:#error getting photos
+        #set result
+        result['error'] = 'true'
+        result['msg'] = 'Error al obtener foto'
+    finally:
         cur.close()
-        return "Error getting photos"
+    return jsonify(result)
 
 @app.route('/editAlbum', methods=['PATCH'])
 def editAlbum():
+    #result
+    result = {
+        'error': '',
+        'msg': ''
+    }
     #data from request
     data = request.get_json()
+    idusuario = data.get('idusuario')
     idalbum = data.get('idalbum')
     nombre = data.get('nombre')
     #query
-    sql = "UPDATE album SET nombre = '{}' WHERE idalbum = {}".format(nombre,idalbum)
+    sql = "SELECT * FROM album WHERE idusuario = {} AND nombre = '{}'".format(idusuario,nombre)
     #execute query
     cur = mysql.connection.cursor()
     try:#update user
         cur.execute(sql)
-        mysql.connection.commit()
-        cur.close()
-        return "album {} updated".format(idalbum)
+        if (cur.rowcount == 0):#new album
+            #query
+            sql = "UPDATE album SET nombre = '{}' WHERE idalbum = {}".format(nombre,idalbum)
+            mysql.connection.commit()
+            #set result
+            result['error'] = 'false'
+            result['msg'] = 'Album editado con exito'
+        else:
+            #set result
+            result['error'] = 'true'
+            result['msg'] = 'El album ya existe'
     except:#error trying to update
-        return "Error trying to update album"
+        #set result
+        result['error'] = 'true'
+        result['msg'] = 'Error al editar album'
+    finally:
+        cur.close()
+    return jsonify(result)
 
 @app.route('/deleteAlbum', methods=['DELETE'])
 def deleteAlbum():
+    #result
+    result = {
+        'error': '',
+        'msg': ''
+    }
     #data from request
     data = request.get_json()
     idalbum = data.get('idalbum')
@@ -147,7 +211,13 @@ def deleteAlbum():
         sql = "DELETE FROM album WHERE idalbum = {}".format(idalbum)
         cur.execute(sql)
         mysql.connection.commit()
-        cur.close()
-        return "album {} deleted".format(idalbum)
+        #set result
+        result['error'] = 'false'
+        result['msg'] = 'Album eliminado con exito'
     except:#error trying to update
-        return "Error trying to delete album"
+        #set result
+        result['error'] = 'true'
+        result['msg'] = 'Error al eliminar album'
+    finally:
+        cur.close()
+    return jsonify(result)

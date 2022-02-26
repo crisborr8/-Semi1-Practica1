@@ -22,8 +22,6 @@ mysql = MySQL(app)
 
 @app.route('/')
 def index():
-    var = os.environ['asdf']
-    print(var)
     return ('Python api is running')
 
 import user
