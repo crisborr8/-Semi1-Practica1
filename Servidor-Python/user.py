@@ -19,7 +19,7 @@ def newUser():
     #decode buffer from base64
     foto64 = base64.b64decode(foto)
     #query
-    sql = "INSERT INTO usuario (username,name,contra) VALUES ('{}','{}','{}')".format(username,name,contra)
+    sql = "INSERT INTO USUARIO (username,name,contra) VALUES ('{}','{}','{}')".format(username,name,contra)
     #execute query
     cur = mysql.connection.cursor()
     try:#create user
@@ -45,7 +45,7 @@ def newUser():
 
 @app.route('/allUsers')
 def allUsers():
-    sql = "SELECT * FROM usuario"
+    sql = "SELECT * FROM USUARIO"
     cur = mysql.connection.cursor()
     cur.execute(sql)
     data = cur.fetchall()
@@ -73,7 +73,7 @@ def oneUser():
     username = data.get('username')
     contra = data.get('contra')
     #query
-    sql = "SELECT * FROM usuario WHERE username = '{}' AND contra = '{}'".format(username,contra)
+    sql = "SELECT * FROM USUARIO WHERE username = '{}' AND contra = '{}'".format(username,contra)
     #execute query
     cur = mysql.connection.cursor()
     try:
@@ -90,12 +90,12 @@ def oneUser():
                 'fotos': 0
             }
             #count albums
-            sql = "SELECT COUNT(*) AS albums FROM usuario AS u, album AS a WHERE u.idusuario = a.idusuario AND u.username = '{}'".format(username)
+            sql = "SELECT COUNT(*) AS albums FROM USUARIO AS u, ALBUM AS a WHERE u.idusuario = a.idusuario AND u.username = '{}'".format(username)
             cur.execute(sql)
             data = cur.fetchall()
             usuario['albums'] = data[0][0]
             #count photos
-            sql = "SELECT COUNT(*) AS fotos FROM usuario AS u, album AS a, photo AS p WHERE u.idusuario = a.idusuario AND a.idalbum = p.idalbum AND u.username = '{}'".format(username)
+            sql = "SELECT COUNT(*) AS fotos FROM USUARIO AS u, ALBUM AS a, PHOTO AS p WHERE u.idusuario = a.idusuario AND a.idalbum = p.idalbum AND u.username = '{}'".format(username)
             cur.execute(sql)
             data = cur.fetchall()
             usuario['fotos'] = data[0][0]
@@ -149,7 +149,7 @@ def editUser():
     #decode buffer from base64
     foto64 = base64.b64decode(foto)
     #query
-    sql = "SELECT COUNT(*) FROM usuario WHERE idusuario = {} AND contra = '{}';".format(id,contra)
+    sql = "SELECT COUNT(*) FROM USUARIO WHERE idusuario = {} AND contra = '{}';".format(id,contra)
     #execute query
     cur = mysql.connection.cursor()
     try:#update user
@@ -158,7 +158,7 @@ def editUser():
         match = data[0][0]
         if (match == 1):#password match
             #query
-            sql = "UPDATE usuario SET username = '{}', name = '{}' WHERE idusuario = {}".format(username,name,id)
+            sql = "UPDATE USUARIO SET username = '{}', name = '{}' WHERE idusuario = {}".format(username,name,id)
             mysql.connection.commit()
             #save in s3
             client.put_object(
