@@ -16,14 +16,14 @@ def newAlbum():
     idusuario = data.get('idusuario')
     album = data.get('album')
     #query
-    sql = "SELECT * FROM album WHERE nombre = '{}' AND idusuario = {}".format(album, idusuario)
+    sql = "SELECT * FROM ALBUM WHERE nombre = '{}' AND idusuario = {}".format(album, idusuario)
     #execute query
     cur = mysql.connection.cursor()
     try:#create user
         cur.execute(sql)
         if (cur.rowcount == 0):#new album
             #new query
-            sql = "INSERT INTO album (nombre,idusuario) VALUES ('{}',{})".format(album,idusuario)
+            sql = "INSERT INTO ALBUM (nombre,idusuario) VALUES ('{}',{})".format(album,idusuario)
             cur.execute(sql)
             mysql.connection.commit()
             #set result
@@ -52,7 +52,7 @@ def album():
     data = request.get_json()
     idusuario = data.get('idusuario')
     #query
-    sql = "SELECT * FROM album WHERE idusuario = {}".format(idusuario)
+    sql = "SELECT * FROM ALBUM WHERE idusuario = {}".format(idusuario)
     #execute query
     cur = mysql.connection.cursor()
     try:#create user
@@ -94,7 +94,7 @@ def newPhoto():
     time = datetime.timestamp(datetime.now())
     valor = "{}-{}-{}".format(idalbum,nombre,round(time))
     #query
-    sql = "INSERT INTO photo (nombre,valor,idalbum) VALUES ('{}','{}',{})".format(nombre,valor,idalbum)
+    sql = "INSERT INTO PHOTO (nombre,valor,idalbum) VALUES ('{}','{}',{})".format(nombre,valor,idalbum)
     #execute query
     cur = mysql.connection.cursor()
     try:#create user
@@ -129,7 +129,7 @@ def userPhotos():
     data = request.get_json()
     idalbum = data.get('idalbum')
     #query
-    sql = "SELECT p.nombre, p.valor FROM photo AS p, album AS a WHERE p.idalbum = a.idalbum AND a.idalbum = {}".format(idalbum)
+    sql = "SELECT p.nombre, p.valor FROM PHOTO AS p, ALBUM AS a WHERE p.idalbum = a.idalbum AND a.idalbum = {}".format(idalbum)
     #execute query
     cur = mysql.connection.cursor()
     try:#create user
@@ -166,14 +166,16 @@ def editAlbum():
     idalbum = data.get('idalbum')
     nombre = data.get('nombre')
     #query
-    sql = "SELECT * FROM album WHERE idusuario = {} AND nombre = '{}'".format(idusuario,nombre)
+    sql = "SELECT * FROM ALBUM WHERE idusuario = {} AND nombre = '{}'".format(idusuario,nombre)
     #execute query
     cur = mysql.connection.cursor()
     try:#update user
         cur.execute(sql)
         if (cur.rowcount == 0):#new album
             #query
-            sql = "UPDATE album SET nombre = '{}' WHERE idalbum = {}".format(nombre,idalbum)
+            sql = "UPDATE ALBUM SET nombre = '{}' WHERE idalbum = {}".format(nombre,idalbum)
+            #execute query
+            cur.execute(sql)
             mysql.connection.commit()
             #set result
             result['error'] = 'false'
@@ -201,14 +203,14 @@ def deleteAlbum():
     data = request.get_json()
     idalbum = data.get('idalbum')
     #query
-    sql = "DELETE FROM photo WHERE idalbum = {}".format(idalbum)
+    sql = "DELETE FROM PHOTO WHERE idalbum = {}".format(idalbum)
     #execute query
     cur = mysql.connection.cursor()
     try:#update user
         cur.execute(sql)
         mysql.connection.commit()
         #query
-        sql = "DELETE FROM album WHERE idalbum = {}".format(idalbum)
+        sql = "DELETE FROM ALBUM WHERE idalbum = {}".format(idalbum)
         cur.execute(sql)
         mysql.connection.commit()
         #set result
