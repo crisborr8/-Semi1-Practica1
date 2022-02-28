@@ -3,6 +3,6 @@ let db_credentials = {
     port: 3306,
     user: "admin",
     password: "practicasemi1234",
-    database: "faunadex"
+    database: "PRACTICAU"
 }
 module.exports = db_credentials;

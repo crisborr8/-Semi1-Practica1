@@ -37,4 +37,11 @@ VALUES ('/foto3.jpg', 2);
 
 INSERT INTO PHOTO(nombre, idalbum)
 VALUES ('/fotichi.jpg', 4);
+/*
+INSERT INTO USUARIO(username, name,contra)
+VALUES ('UNO', 'UNO UNO UNO UNO', '1111');
+
+INSERT INTO USUARIO VALUES(4, 'CUATRO','CUATRO CUATRO CUATRO CUATRO','4444');
+*/
+SELECT * FROM USUARIO
 
