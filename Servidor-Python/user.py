@@ -1,5 +1,7 @@
 from __main__ import app, mysql, client
 from flask import jsonify, request
+from datetime import datetime
+import hashlib
 import base64
 import os
 
@@ -18,18 +20,33 @@ def newUser():
     foto = data.get('foto')
     #decode buffer from base64
     foto64 = base64.b64decode(foto)
+    #password using md5
+    hash = hashlib.md5(contra.encode())
+    md5_str = hash.hexdigest()
+    #photo value
+    time = datetime.timestamp(datetime.now())
+    valor = '{}-{}'.format(username,time)
     #query
-    sql = "INSERT INTO USUARIO (username,name,contra) VALUES ('{}','{}','{}')".format(username,name,contra)
+    sql = "INSERT INTO USUARIO (username,name,contra,valor) VALUES ('{}','{}','{}')".format(username,name,md5_str,valor)
     #execute query
     cur = mysql.connection.cursor()
     try:#create user
+        cur.execute(sql)
+        mysql.connection.commit()
+        #get id from user
+        sql = "SELECT * FROM USUARIO WHERE username = '{}'".format(username)
+        cur.execute(sql)
+        data = cur.fetchall()
+        id = data[0][0]
+        #insert in profile photo
+        sql = "INSERT INTO PHOTO_PERFIL (valor,idusuario) VALUES ('{}',{})".format(valor,id)
         cur.execute(sql)
         mysql.connection.commit()
         #save in s3
         client.put_object(
             Body = foto64,
             Bucket = os.environ['BUCKET'],
-            Key = 'foto-perfil/{}.jpg'.format(username),
+            Key = 'Fotos_Perfil/{}.jpg'.format(valor),
             ContentType = 'image'
         )
         #set result
@@ -72,8 +89,11 @@ def oneUser():
     data = request.get_json()
     username = data.get('username')
     contra = data.get('contra')
+    #password using md5
+    hash = hashlib.md5(contra.encode())
+    md5_str = hash.hexdigest()
     #query
-    sql = "SELECT * FROM USUARIO WHERE username = '{}' AND contra = '{}'".format(username,contra)
+    sql = "SELECT * FROM USUARIO WHERE username = '{}' AND contra = '{}'".format(username,md5_str)
     #execute query
     cur = mysql.connection.cursor()
     try:
@@ -144,12 +164,12 @@ def editUser():
     id = data.get('idusuario')
     username = data.get('username')
     name = data.get('name')
-    foto = data.get('foto')
     contra = data.get('contra')
-    #decode buffer from base64
-    foto64 = base64.b64decode(foto)
+    #password using md5
+    hash = hashlib.md5(contra.encode())
+    md5_str = hash.hexdigest()
     #query
-    sql = "SELECT COUNT(*) FROM USUARIO WHERE idusuario = {} AND contra = '{}';".format(id,contra)
+    sql = "SELECT COUNT(*) FROM USUARIO WHERE idusuario = {} AND contra = '{}';".format(id,md5_str)
     #execute query
     cur = mysql.connection.cursor()
     try:#update user
@@ -159,14 +179,8 @@ def editUser():
         if (match == 1):#password match
             #query
             sql = "UPDATE USUARIO SET username = '{}', name = '{}' WHERE idusuario = {}".format(username,name,id)
+            cur.execute(sql)
             mysql.connection.commit()
-            #save in s3
-            client.put_object(
-                Body = foto64,
-                Bucket = os.environ['BUCKET'],
-                Key = 'foto-perfil/{}.jpg'.format(username),
-                ContentType = 'image'
-            )
             #set result
             result['error'] = 'false'
             result['msg'] = 'Usuario modificado con exito'
@@ -177,6 +191,99 @@ def editUser():
     except:#error trying to update
         result['error'] = 'true'
         result['msg'] = 'Error editando usuario'
+    finally:
+        cur.close()
+    return jsonify(result)
+
+@app.route('/editPhotoUser', methods=['POST'])
+def editPhotoUser():
+    #result
+    result = {
+        'error': '',
+        'msg': ''
+    }
+    #data from request
+    data = request.get_json()
+    id = data.get('idusuario')
+    username = data.get('username')
+    contra = data.get('contra')
+    foto = data.get('foto')
+    #decode buffer from base64
+    foto64 = base64.b64decode(foto)
+    #password using md5
+    hash = hashlib.md5(contra.encode())
+    md5_str = hash.hexdigest()
+    #photo value
+    time = datetime.timestamp(datetime.now())
+    valor = '{}-{}'.format(username,time)
+    #query
+    sql = "SELECT COUNT(*) FROM USUARIO WHERE idusuario = {} AND contra = '{}';".format(id,md5_str)
+    #execute query
+    cur = mysql.connection.cursor()
+    try:#update user
+        cur.execute(sql)
+        data = cur.fetchall()
+        match = data[0][0]
+        if (match == 1):#password match
+            #insert profile photo
+            sql = "INSERT INTO PHOTO_PERFIL (valor,idusuario) VALUES ('{}',{})".format(valor,id)
+            cur.execute(sql)
+            mysql.connection.commit()
+            #update user photo
+            sql = "UPDATE USUARIO SET foto = '{}' WHERE idusuario = {}".format(valor,id)
+            cur.execute(sql)
+            mysql.connection.commit()
+            #save in s3
+            client.put_object(
+                Body = foto64,
+                Bucket = os.environ['BUCKET'],
+                Key = 'Fotos_Perfil/{}.jpg'.format(valor),
+                ContentType = 'image'
+            )
+        else:#password error
+            #set result
+            result['error'] = 'true'
+            result['msg'] = 'Contraseña incorrecta'
+        #set result
+        result['error'] = 'false'
+        result['msg'] = 'Foto de perfil agregada con exito'
+    except:#error trying to update
+        result['error'] = 'true'
+        result['msg'] = 'Error editando foto de perfil'
+    finally:
+        cur.close()
+    return jsonify(result)
+
+@app.route('/photoPerfil', methods=['POST'])
+def photoPerfil():
+    #result
+    result = {
+        'error': '',
+        'msg': ''
+    }
+    #data from request
+    data = request.get_json()
+    idusuario = data.get('idusuario')
+    #query
+    sql = "SELECT p.valor FROM PHOTO_PERFIL AS p, USUARIO AS u WHERE p.idusuario = u.idusuario AND u.idusuario = {}".format(idusuario)
+    #execute query
+    cur = mysql.connection.cursor()
+    try:#create user
+        cur.execute(sql)
+        data = cur.fetchall()
+        data_ = []
+        for row in data:
+            foto = {
+                "valor": 'https://practica1-g2b-imagenes.s3.amazonaws.com/Fotos_Perfil/'+row[0]+'.jpg'
+            }
+            data_.append(foto)
+        #set result
+        result['error'] = 'false'
+        result['msg'] = data_
+    except:#error getting photos
+        #set result
+        result['error'] = 'true'
+        result['msg'] = 'Error al obtener fotos'
     finally:
         cur.close()
     return jsonify(result)

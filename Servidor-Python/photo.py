@@ -104,7 +104,7 @@ def newPhoto():
         client.put_object(
             Body = foto64,
             Bucket = os.environ['BUCKET'],
-            Key = 'fotos/{}.jpg'.format(valor),
+            Key = 'Fotos_Publicadas/{}.jpg'.format(valor),
             ContentType = 'image'
         )
         #set result
@@ -139,7 +139,7 @@ def userPhotos():
         for row in data:
             album = {
                 "nombre": row[0],
-                "valor": row[1]
+                "valor": 'https://practica1-g2b-imagenes.s3.amazonaws.com/Fotos_Publicadas/'+row[1]+'.jpg'
             }
             data_.append(album)
         #set result
