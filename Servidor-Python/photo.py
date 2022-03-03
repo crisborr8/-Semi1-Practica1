@@ -139,7 +139,7 @@ def userPhotos():
         for row in data:
             album = {
                 "nombre": row[0],
-                "valor": 'https://practica1-g2b-imagenes.s3.amazonaws.com/Fotos_Publicadas/'+row[1]+'.jpg'
+                "valor": os.environ['BUCKET_URL']+'Fotos_Publicadas/'+row[1]+'.jpg'
             }
             data_.append(album)
         #set result

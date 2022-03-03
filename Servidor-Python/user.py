@@ -25,16 +25,16 @@ def newUser():
     md5_str = hash.hexdigest()
     #photo value
     time = datetime.timestamp(datetime.now())
-    valor = '{}-{}'.format(username,time)
+    valor = '{}-{}'.format(username,round(time))
     #query
-    sql = "INSERT INTO USUARIO (username,name,contra,valor) VALUES ('{}','{}','{}')".format(username,name,md5_str,valor)
+    sql = "INSERT INTO USUARIO (username,name,contra,valor) VALUES ('{}','{}','{}','{}')".format(username,name,md5_str,valor)
     #execute query
     cur = mysql.connection.cursor()
     try:#create user
         cur.execute(sql)
         mysql.connection.commit()
         #get id from user
-        sql = "SELECT * FROM USUARIO WHERE username = '{}'".format(username)
+        sql = "SELECT idusuario FROM USUARIO WHERE username = '{}'".format(username)
         cur.execute(sql)
         data = cur.fetchall()
         id = data[0][0]
@@ -73,7 +73,8 @@ def allUsers():
             "idusuario": row[0],
             "username": row[1],
             "name": row[2],
-            "contra": row[3]
+            "contra": row[3],
+            "valor": row[4]
         }
         data_.append(usuario)
     return jsonify(data_)
@@ -93,7 +94,7 @@ def oneUser():
     hash = hashlib.md5(contra.encode())
     md5_str = hash.hexdigest()
     #query
-    sql = "SELECT * FROM USUARIO WHERE username = '{}' AND contra = '{}'".format(username,md5_str)
+    sql = "SELECT idusuario,username,name,valor FROM USUARIO WHERE username = '{}' AND contra = '{}'".format(username,md5_str)
     #execute query
     cur = mysql.connection.cursor()
     try:
@@ -106,6 +107,7 @@ def oneUser():
                 'idusuario': row[0],
                 'username': row[1],
                 'name': row[2],
+                "valor": os.environ['BUCKET_URL']+'Fotos_Perfil/'+row[3]+'.jpg',
                 'albums': 0,
                 'fotos': 0
             }
@@ -195,7 +197,7 @@ def editUser():
         cur.close()
     return jsonify(result)
 
-@app.route('/editPhotoUser', methods=['POST'])
+@app.route('/editPhotoUser', methods=['PATCH'])
 def editPhotoUser():
     #result
     result = {
@@ -215,7 +217,7 @@ def editPhotoUser():
     md5_str = hash.hexdigest()
     #photo value
     time = datetime.timestamp(datetime.now())
-    valor = '{}-{}'.format(username,time)
+    valor = '{}-{}'.format(username,round(time))
     #query
     sql = "SELECT COUNT(*) FROM USUARIO WHERE idusuario = {} AND contra = '{}';".format(id,md5_str)
     #execute query
@@ -230,7 +232,7 @@ def editPhotoUser():
             cur.execute(sql)
             mysql.connection.commit()
             #update user photo
-            sql = "UPDATE USUARIO SET foto = '{}' WHERE idusuario = {}".format(valor,id)
+            sql = "UPDATE USUARIO SET valor = '{}' WHERE idusuario = {}".format(valor,id)
             cur.execute(sql)
             mysql.connection.commit()
             #save in s3
@@ -274,7 +276,7 @@ def photoPerfil():
         data_ = []
         for row in data:
             foto = {
-                "valor": 'https://practica1-g2b-imagenes.s3.amazonaws.com/Fotos_Perfil/'+row[0]+'.jpg'
+                "valor": os.environ['BUCKET_URL']+'Fotos_Perfil/'+row[0]+'.jpg'
             }
             data_.append(foto)
         #set result
