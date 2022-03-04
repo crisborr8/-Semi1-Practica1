@@ -194,31 +194,39 @@ app.patch("/editUser", async (req, res) => {
 
     let hash = crypto.createHash('md5').update(contra).digest("hex")
 
-    let sql = "CALL sp_usuario('" + operacion + "','" + idusuario + "','" + username + "','" + hash + "','"  + name + "',null);";
-    conn.query(sql, function (err, result) {
-        if (err) {
-            res.status(500).json({
-                error: 'true',
-                msg: err.message    
-            })
-        }else{
-            let respuesta = JSON.parse(JSON.stringify(result));
-    
-            let resultado = respuesta[1][0].existe 
-            if (resultado == 'FALSE'){
-                res.status(400).json({
+    try {
+        let sql = "CALL sp_usuario('" + operacion + "','" + idusuario + "','" + username + "','" + hash + "','"  + name + "',null);";
+        conn.query(sql, function (err, result) {
+            if (err) {
+                res.status(500).json({
                     error: 'true',
-                    msg: 'Error editando usuario'
-                })            
-            } else {
-                res.status(200).json({
-                    error: 'false',
-                    msg: 'Usuario modificado con éxito'
-                })              
+                    msg: err.message    
+                })
+            }else{
+                let respuesta = JSON.parse(JSON.stringify(result));
+        
+                let resultado = respuesta[1][0].existe 
+                if (resultado == 'FALSE'){
+                    res.status(400).json({
+                        error: 'true',
+                        msg: 'Error editando usuario'
+                    })            
+                } else {
+                    res.status(200).json({
+                        error: 'false',
+                        msg: 'Usuario modificado con éxito'
+                    })              
+                }
             }
-        }
+    
+        });        
+    }
+    catch (e) {
+        console.log("entering catch block");
+        console.log(e);
+        console.log("leaving catch block");
+      }
 
-    });
 });
 
 app.post("/newAlbum", async (req, res) => {
