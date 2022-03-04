@@ -29,6 +29,18 @@ console.log("Escuchando en el puerto", port)
 
 /******************************RDS *************/
 //obtener datos de la BD
+
+app.get("/", async (req, res) => {
+
+
+    res.status(200).json({
+        error: 'false',
+        msg: 'Hola'
+    })      
+
+
+});
+
 app.get("/getusuario", async (req, res) => {
     let username = req.query.username;
 
