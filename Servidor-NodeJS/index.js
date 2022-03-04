@@ -100,7 +100,7 @@ app.post("/login", async (req, res) => {
                     msg: {
                         idusuario: respuesta[0][0].idusuario,
                         username: respuesta[0][0].username,
-                        nombre: respuesta[0][0].name,
+                        name: respuesta[0][0].name,
                         valor: 'https://practica1-g2b-imagenes.s3.amazonaws.com/Fotos_Perfil/' + respuesta[0][0].valor +'.jpg',
                         albums: respuesta[2][0].albums,
                         fotos: respuesta[3][0].fotos,
