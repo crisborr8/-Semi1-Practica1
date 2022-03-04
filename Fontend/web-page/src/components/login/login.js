@@ -23,8 +23,8 @@ class Login extends Component {
             reg_psw2: '',
             reg_files: [],
         };
-        //sessionStorage.setItem('url', "http://3.144.234.132:3000")
-        sessionStorage.setItem('url', "http://52.90.221.15:3000")
+        sessionStorage.setItem('url', "http://3.144.234.132:3000")
+        //sessionStorage.setItem('url', "http://52.90.221.15:3000")
     }
     login_setUser(evt){
         this.setState({
@@ -80,32 +80,50 @@ class Login extends Component {
                 sessionStorage.setItem("nombre", msg.name);
                 sessionStorage.setItem("usuario", msg.username);
                 sessionStorage.setItem("foto_perfil", msg.valor);
-                this.setState({isLoogedIn: true})
+            } else {
+                document.getElementById("login_error").innerHTML = "Error, usuario o contraseña incorrectos"
             }
         });
     }
     registro(){
-        if (this.state.reg_psw1 == this.state.reg_psw2){
-            const requestOptions = {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    username: this.state.reg_user,
-                    name: this.state.reg_name,
-                    contra: this.state.reg_psw1,
-                    foto: this.state.params.reg_files[0].file.base64
-                })
-            };
-            fetch(sessionStorage.getItem("url") + "/newUser", requestOptions).then(response => response.json()).then(data => {
-                console.log(data)
-            });
-        } else {
-            alert("Contraseñas no son iguales")
+        if (this.state.reg_user == '' || this.state.reg_name == '' || this.state.reg_psw1 == '' || this.state.params.reg_files == []){
+            document.getElementById("regist_error").innerHTML = "Faltan campos por llenar"
+        } else{
+            if (this.state.reg_psw1 == this.state.reg_psw2){
+                const requestOptions = {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        username: this.state.reg_user,
+                        name: this.state.reg_name,
+                        contra: this.state.reg_psw1,
+                        foto: this.state.params.reg_files[0].base64
+                    })
+                };
+                fetch(sessionStorage.getItem("url") + "/newUser", requestOptions).then(response => response.json()).then(data => {
+                    if (data.error == "false"){
+                        document.getElementById("regist_error").innerHTML = "Usuario creado"
+                        this.state.reg_user = '';
+                        this.state.reg_name = '';
+                        this.state.reg_psw1 = this.state.reg_psw2 = ''
+                        this.state.params.reg_files = []
+
+                        document.getElementById('logname').value = ''
+                        document.getElementById('username').value = ''
+                        document.getElementById('logpass1').value = ''
+                        document.getElementById('logpass2').value = ''
+                    }
+                    else{
+                        document.getElementById("regist_error").innerHTML = "Error inesperado al crear usuario"
+                    }
+                });
+            } else {
+                document.getElementById("regist_error").innerHTML = "Contraseñas no cohinciden"
+            }
         }
-        
     }
     render(){
-        if (this.state.isLoogedIn) return <Inicio/>
+        if (sessionStorage.getItem("id") != '') return <Inicio/>
         return (
           <>
               <head>
@@ -134,7 +152,7 @@ class Login extends Component {
                                                           <i class="input-icon uil uil-lock-alt"></i>
                                                       </div>
                                                       <a href="#" class="btn mt-4" onClick={() => this.ingresar()}>Ingresar</a>
-                                                      <p class="mb-0 mt-4 text-center"><a href="#0" class="link">¿Olvidaste tu contraseña?</a></p>
+                                                      <p id="login_error" class="mb-0 mt-4 text-center"></p>
                                                   </div>
                                               </div>
                                           </div>
@@ -162,6 +180,7 @@ class Login extends Component {
                                                           <FileUploadComponent params={this.state.params}/>
                                                       </div>
                                                       <a href="#" onClick={() => this.registro()} class="btn mt-4">Registrarme</a>
+                                                      <p id="regist_error" class="mb-0 mt-4 text-center"></p>
                                                   </div>
                                               </div>
                                           </div>

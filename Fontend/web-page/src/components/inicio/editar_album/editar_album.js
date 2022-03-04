@@ -35,6 +35,10 @@ class Editar_Album extends Component{
         fetch(sessionStorage.getItem("url") + "/editAlbum", requestOptions).then(response => response.json()).then(data => {
             console.log(data)
             if (data.error == "false"){
+                this.setAlbumes()
+                document.getElementById("album_error").innerHTML = "Album actualizado"
+            } else{
+                document.getElementById("album_error").innerHTML = "Error al actualizar album"
             }
         });
     }
@@ -49,11 +53,15 @@ class Editar_Album extends Component{
         fetch(sessionStorage.getItem("url") + "/deleteAlbum", requestOptions).then(response => response.json()).then(data => {
             console.log(data)
             if (data.error == "false"){
-
+                this.setAlbumes()
+                document.getElementById("album_error").innerHTML = "Album eliminado"
+                this.setState({idAlbum: -1, nombreAlbum: 'Seleccione un album'});
+            } else{
+                document.getElementById("album_error").innerHTML = "Error al eliminar album"
             }
         });
     }
-    componentDidMount(){
+    setAlbumes(){
         var albumes = []
         const requestOptions = {
             method: 'POST',
@@ -70,8 +78,13 @@ class Editar_Album extends Component{
                     albumes.push({'id':album.idalbum, 'nombre': album.nombre});
                 })
                 this.setState({albums: albumes})
+            } else{
+                document.getElementById("album_error").innerHTML = "Error al cargar albumes"
             }
         });
+    }
+    componentDidMount(){
+        this.setAlbumes()
     }
     render(){
         const album_array = this.state.albums.map(album => (
@@ -81,7 +94,8 @@ class Editar_Album extends Component{
             <>
                <div class="py-4 px-4">
                     <div class="d-flex align-items-center justify-content-between mb-3">
-                        <h5 class="mb-0">{this.state.nombreAlbum}</h5>
+                        <h5 class="mb-0">{this.state.nombreAlbum}</h5>                               
+                        <p id="album_error" class="mb-0 mt-4 text-center"></p>
                     </div>
                     <div class="row">
                         <div class="section text-center">

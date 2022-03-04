@@ -32,23 +32,23 @@ class Subir_fotos extends Component{
         });
     }
     subirFoto(){
-        if (this.state.reg_psw1 == this.state.reg_psw2){
-            const requestOptions = {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    idalbum: this.state.idAlbum,
-                    nombre: this.state.name,
-                    foto: this.state.params.reg_files[0].base64
-                })
-            };
-            fetch(sessionStorage.getItem("url") + "/newPhoto", requestOptions).then(response => response.json()).then(data => {
-                console.log(data)
-            });
-        } else {
-            alert("Contraseñas no son iguales")
-        }
-        
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                idalbum: this.state.idAlbum,
+                nombre: this.state.name,
+                foto: this.state.params.reg_files[0].base64
+            })
+        };
+        fetch(sessionStorage.getItem("url") + "/newPhoto", requestOptions).then(response => response.json()).then(data => {
+            if (data.error == 'false'){
+                document.getElementById("subir_error").innerHTML = "Foto subida con éxito"
+                this.setState({idAlbum: -1, nombreAlbum: 'Seleccione un album', name: ''});
+            }else{
+                document.getElementById("subir_error").innerHTML = "Error al subir foto"
+            }
+        });
     }
     componentDidMount(){
         var albumes = []
@@ -67,6 +67,8 @@ class Subir_fotos extends Component{
                     albumes.push({'id':album.idalbum, 'nombre': album.nombre});
                 })
                 this.setState({albums: albumes})
+            } else{
+                document.getElementById("subir_error").innerHTML = "Error al cargar albumes"
             }
         });
     }
@@ -75,7 +77,8 @@ class Subir_fotos extends Component{
             <>
                <div class="py-4 px-4">
                     <div class="d-flex align-items-center justify-content-between mb-3">
-                        <h5 class="mb-0">{this.state.nombreAlbum}</h5>
+                        <h5 class="mb-0">{this.state.nombreAlbum}</h5>                                
+                        <p id="subir_error" class="mb-0 mt-4 text-center"></p>
                     </div>
                     <div class="row">
                         <div class="section text-center">
@@ -89,7 +92,7 @@ class Subir_fotos extends Component{
                                 </div>
                                 <p/>
                                 <div class="form-group">
-                                    <input value={this.state.name} onChange={evt => this.setName(evt)} type="text" name="logname" class="form-style" placeholder="Nombre del album" id="logname" autocomplete="off"/>
+                                    <input value={this.state.name} onChange={evt => this.setName(evt)} type="text" name="logname" class="form-style" placeholder="Nombre de la foto" id="logname" autocomplete="off"/>
                                     <i class="input-icon uil uil-images"></i>
                                 </div>	
                                 <p/>

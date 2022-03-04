@@ -1,13 +1,5 @@
 import React, { Component } from 'react';
 
-function getAlbums(){
-    var albumes = []
-    for(var i = 0; i < 15; i++){
-        albumes.push({'id':i, 'nombre': 'Drop ' + (i + 1)});
-    }
-    return albumes;
-}
-
 class Ver_Album extends Component{
     constructor(props){
         super(props);
@@ -20,8 +12,6 @@ class Ver_Album extends Component{
     setFotos_Album(idAlbum, nombreAlbum){
         this.setState({list : []})
         var new_list = [];
-
-
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -33,9 +23,9 @@ class Ver_Album extends Component{
             console.log(data)
             if (data.error == "false"){
                 data.msg.forEach(function(foto){
-                    console.log(foto.nombre)
-                    new_list.push(foto.valor);
+                    new_list.push({url: foto.valor, nombre: foto.nombre});
                 })
+                console.log(new_list)
                 this.setState({list: new_list, nombreAlbum: nombreAlbum});
             }
         });
@@ -57,6 +47,8 @@ class Ver_Album extends Component{
                     albumes.push({'id':album.idalbum, 'nombre': album.nombre});
                 })
                 this.setState({albums: albumes})
+            }else{
+                document.getElementById("ver_error").innerHTML = "Error al cargar albumes"
             }
         });
     }
@@ -65,7 +57,8 @@ class Ver_Album extends Component{
             <>
                <div class="py-4 px-4">
                     <div class="d-flex align-items-center justify-content-between mb-3">
-                        <h5 class="mb-0">{this.state.nombreAlbum}</h5>
+                        <h5 class="mb-0">{this.state.nombreAlbum}</h5>                              
+                        <p id="ver_error" class="mb-0 mt-4 text-center"></p>
                     </div>
                     <div class="row">
                         <div class="section text-center">
@@ -79,8 +72,11 @@ class Ver_Album extends Component{
                                 </div>
                                 <p/>
                                 <div class="row">
-                                    {this.state.list.map(url => (
-                                        <div class="col-lg-4 mb-4 pr-lg-1"><img src={url} alt="" class="img-fluid rounded shadow-sm"/></div>
+                                    {this.state.list.map(foto => (
+                                        <div class="col-lg-4 mb-4 pr-lg-1 img__wrap ">
+                                            <img src={foto.url} alt="" class="img__img img-fluid rounded shadow-sm"/>
+                                            <p class="img__description ">{foto.nombre}</p>
+                                        </div>
                                     ))}
                                 </div>
                             </div>
