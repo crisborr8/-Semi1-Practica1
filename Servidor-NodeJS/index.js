@@ -100,8 +100,8 @@ app.post("/login", async (req, res) => {
                     msg: {
                         idusuario: respuesta[0][0].idusuario,
                         username: respuesta[0][0].username,
-                        nombre: respuesta[0][0].nombre,
-                        valor: respuesta[0][0].valor,
+                        nombre: respuesta[0][0].name,
+                        valor: 'https://practica1-g2b-imagenes.s3.amazonaws.com/Fotos_Perfil/' + respuesta[0][0].valor +'.jpg',
                         albums: respuesta[2][0].albums,
                         fotos: respuesta[3][0].fotos,
                     }
@@ -141,7 +141,7 @@ app.post("/newUser", async (req, res) => {
         //ACL: 'public-read', // ACL -> LE APLICA LA POLITICA AL OBJETO QUE SE ESTA GUARDANDO
     };        
 
-    let sql = "CALL sp_usuario('" + operacion + "',null,'" + username + "','" + hash + "','"  + name + "','"  + filename + "');";
+    let sql = "CALL sp_usuario('" + operacion + "',null,'" + username + "','" + hash + "','"  + name + "','"  + valor + "');";
     conn.query(sql, function (err, result) {
         if (err) {
             res.status(500).json({
@@ -326,7 +326,7 @@ app.post("/newPhoto", async (req, res) => {
     };    
 
 
-    let sql = "CALL sp_fotos('" + operacion + "','" + idusuario + "','" + idalbum + "','"  + album + "','"  + nombre + "','"  + filename + "');";
+    let sql = "CALL sp_fotos('" + operacion + "','" + idusuario + "','" + idalbum + "','"  + album + "','"  + nombre + "','"  + valor + "');";
     conn.query(sql, function (err, result) {
         if (err) {
             res.status(500).json({
@@ -513,7 +513,7 @@ app.patch("/editPhotoUser", async (req, res) => {
         //ACL: 'public-read', // ACL -> LE APLICA LA POLITICA AL OBJETO QUE SE ESTA GUARDANDO
     };    
 
-    let sql = "CALL sp_usuario('" + operacion + "','" + idusuario + "','" + username + "','" + hash + "','"  + name + "','" + filename +"');";
+    let sql = "CALL sp_usuario('" + operacion + "','" + idusuario + "','" + username + "','" + hash + "','"  + name + "','" + valor +"');";
     conn.query(sql, function (err, result) {
         if (err) {
             res.status(500).json({
