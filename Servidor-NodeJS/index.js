@@ -2,9 +2,13 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var app = express();
 const mysql = require('mysql');
+//Se inicializa el sdk para menejar los servicios de AWS 
+var AWS = require('aws-sdk');
 
 const db_credentials = require('./db_credentials');
+const aws_keys = require('./aws_keys');
 var conn = mysql.createPool(db_credentials);
+const s3 = new AWS.S3(aws_keys.s3);
 
 const crypto = require('crypto')
 
@@ -17,84 +21,11 @@ app.use(cors(corsOptions));
 app.use(bodyParser.json({ limit: '10mb', extended: true }));
 app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }))
 
-/*
-app.get('/', function (req, res ) {
-    res.json({messaje: 'Hola Seminario'})
-})*/
 
 var port = 3000;
 app.listen(port);
 console.log("Escuchando en el puerto", port)
 
-
-//Se inicializa el sdk para menejar los servicios de AWS 
-var AWS = require('aws-sdk');
-
-
-// ruta que se usa para subir una foto 
-
-app.post('/subirfoto', function (req, res){
-
-    var id = req.body.id;
-    var foto = req.body.foto;
-    //carpeta y nombre que quieran darle a la imagen
-  
-    var nombrei = "fotos/" + id + ".jpg"; // fotos -> se llama la carpeta 
-    //se convierte la base64 a bytes
-    let buff = new Buffer.from(foto, 'base64');
-  
-
-
-    AWS.config.update({
-        region: 'us-east-2', // se coloca la region del bucket 
-        accessKeyId: 'AKIAQ42CO2WRGVMK4652',
-        secretAccessKey: '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'
-    });
-
-    var s3 = new AWS.S3(); // se crea una variable que pueda tener acceso a las caracteristicas de S3
-    // metodo 1
-    const params = {
-      Bucket: "bpractica1",
-      Key: nombrei,
-      Body: buff,
-      ContentType: "image"
-    };
-    const putResult = s3.putObject(params).promise();
-    res.json({ mensaje: putResult })
-
-});
-
-app.post('/obtenerfoto', function (req, res) {
-    var id = req.body.id;
-    var nombrei = "fotos/"+id+".jpg";
-
-    AWS.config.update({
-        region: 'us-east-2', // se coloca la region del bucket 
-        accessKeyId: 'AKIAQ42CO2WRGVMK4652',
-        secretAccessKey: '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'
-    });
-
-    var S3 = new AWS.S3();
-
-    var getParams = 
-    {
-        Bucket: "bpractica1",
-        Key: nombrei
-    }
-
-    S3.getObject(getParams, function(err, data){
-        if (err)
-        {
-            res.json(error)
-        }else
-        {
-            var dataBase64 = Buffer.from(data.Body).toString('base64'); //resgresar de byte a base
-            res.json({mensaje: dataBase64})
-        }
-
-    })
-
-});
 
 /******************************RDS *************/
 //obtener datos de la BD
@@ -173,13 +104,31 @@ app.post("/newUser", async (req, res) => {
     var username = req.body.username;
     var name = req.body.name;
     var contra = req.body.contra;
-    var foto = req.body.foto;
-
+    var encodedImage = req.body.foto;
+    
     var operacion = 'C';
-
     let hash = crypto.createHash('md5').update(contra).digest("hex")
 
-    let sql = "CALL sp_usuario('" + operacion + "',null,'" + username + "','" + hash + "','"  + name + "','"  + foto + "');";
+    //Decodificar imagen
+    let decodedImage = Buffer.from(encodedImage, 'base64');
+
+    var valor = username + Date.now();
+    let extension = 'jpg';      
+
+    let filename = `${valor}.${extension}`;    
+
+    //Parámetros para S3
+    let bucketname = 'practica1-g2b-imagenes';
+    let folder = 'Fotos_Perfil/';
+    let filepath = `${folder}${filename}`;
+    var uploadParamsS3 = {
+        Bucket: bucketname,
+        Key: filepath,
+        Body: decodedImage
+        //ACL: 'public-read', // ACL -> LE APLICA LA POLITICA AL OBJETO QUE SE ESTA GUARDANDO
+    };        
+
+    let sql = "CALL sp_usuario('" + operacion + "',null,'" + username + "','" + hash + "','"  + name + "','"  + filename + "');";
     conn.query(sql, function (err, result) {
         if (err) {
             res.status(500).json({
@@ -188,17 +137,33 @@ app.post("/newUser", async (req, res) => {
             })
         }else{
             let respuesta = JSON.parse(JSON.stringify(result));
-            console.log(result);
+
             let resultado = respuesta[1][0].existe 
             if (resultado == 'FALSE'){
-                res.status(200).json({
-                    error: 'false',
-                    msg: 'Usuario creado con éxito'
-                })            
+
+                // Se sube imagen a S3
+
+                s3.upload(uploadParamsS3, function sync(err, data) {
+                    if (err) {
+                        console.log('Error uploading file:', err);
+                        res.status(400).json({
+                            error: 'true',
+                            msg: 'Error al crear el usuario'
+                        }) 
+                    } else {
+                        console.log('Upload success at:', data.Location);
+                        res.status(200).json({
+                            error: 'false',
+                            msg: 'Usuario creado con éxito'
+                        })                          
+                    }
+                });           
+
+          
             } else {
                 res.status(400).json({
                     error: 'true',
-                    msg: 'Error al crear el usuario'
+                    msg: 'Error al crear el usuario, usuario ya existe'
                 })              
             }
         }
@@ -322,14 +287,33 @@ app.post("/userAlbum", async (req, res) => {
 app.post("/newPhoto", async (req, res) => {
     var idalbum = req.body.idalbum;
     var nombre = req.body.nombre;
-    var foto = req.body.foto;
+    var encodedImage = req.body.foto;
 
     var operacion = 'NF';
     var idusuario = null;
     var album = null;
 
+    //Decodificar imagen
+    let decodedImage = Buffer.from(encodedImage, 'base64');
 
-    let sql = "CALL sp_fotos('" + operacion + "','" + idusuario + "','" + idalbum + "','"  + album + "','"  + nombre + "','"  + foto + "');";
+    var valor = idalbum + '-' + nombre + '-' +Date.now();
+    let extension = 'jpg';      
+
+    let filename = `${valor}.${extension}`;    
+
+    //Parámetros para S3
+    let bucketname = 'practica1-g2b-imagenes';
+    let folder = 'Fotos_Publicadas/';
+    let filepath = `${folder}${filename}`;
+    var uploadParamsS3 = {
+        Bucket: bucketname,
+        Key: filepath,
+        Body: decodedImage
+        //ACL: 'public-read', // ACL -> LE APLICA LA POLITICA AL OBJETO QUE SE ESTA GUARDANDO
+    };    
+
+
+    let sql = "CALL sp_fotos('" + operacion + "','" + idusuario + "','" + idalbum + "','"  + album + "','"  + nombre + "','"  + filename + "');";
     conn.query(sql, function (err, result) {
         if (err) {
             res.status(500).json({
@@ -341,10 +325,25 @@ app.post("/newPhoto", async (req, res) => {
     
             let resultado = respuesta[1][0].existe 
             if (resultado == 'FALSE'){
-                res.status(200).json({
-                    error: 'false',
-                    msg: 'Foto creada con exito'
-                })            
+
+                // Se sube imagen a S3
+
+                s3.upload(uploadParamsS3, function sync(err, data) {
+                    if (err) {
+                        console.log('Error uploading file:', err);
+                        res.status(400).json({
+                            error: 'true',
+                            msg: 'Error al crear foto'
+                        })      
+                    } else {
+                        console.log('Upload success at:', data.Location);
+                        res.status(200).json({
+                            error: 'false',
+                            msg: 'Foto creada con exito'
+                        })                         
+                    }
+                });  
+          
             } else {
                 res.status(400).json({
                     error: 'true',
@@ -474,7 +473,7 @@ app.delete("/deleteAlbum", async (req, res) => {
 app.patch("/editPhotoUser", async (req, res) => {
     var idusuario = req.body.idusuario;
     var username = req.body.username;
-    var foto = req.body.foto;
+    var encodedImage = req.body.foto;
     var contra = req.body.contra;
 
     var operacion = 'EFP';
@@ -482,7 +481,26 @@ app.patch("/editPhotoUser", async (req, res) => {
 
     let hash = crypto.createHash('md5').update(contra).digest("hex")
 
-    let sql = "CALL sp_usuario('" + operacion + "','" + idusuario + "','" + username + "','" + hash + "','"  + name + "','" + foto +"');";
+    //Decodificar imagen
+    let decodedImage = Buffer.from(encodedImage, 'base64');
+
+    var valor = username + '-' + Date.now();
+    let extension = 'jpg';      
+
+    let filename = `${valor}.${extension}`;    
+
+    //Parámetros para S3
+    let bucketname = 'practica1-g2b-imagenes';
+    let folder = 'Fotos_Perfil/';
+    let filepath = `${folder}${filename}`;
+    var uploadParamsS3 = {
+        Bucket: bucketname,
+        Key: filepath,
+        Body: decodedImage
+        //ACL: 'public-read', // ACL -> LE APLICA LA POLITICA AL OBJETO QUE SE ESTA GUARDANDO
+    };    
+
+    let sql = "CALL sp_usuario('" + operacion + "','" + idusuario + "','" + username + "','" + hash + "','"  + name + "','" + filename +"');";
     conn.query(sql, function (err, result) {
         if (err) {
             res.status(500).json({
@@ -499,10 +517,24 @@ app.patch("/editPhotoUser", async (req, res) => {
                     msg: 'Error editando foto de perfil'
                 })            
             } else {
-                res.status(200).json({
-                    error: 'false',
-                    msg: 'Foto de perfil agregada con éxito'
-                })              
+                // Se sube imagen a S3
+
+                s3.upload(uploadParamsS3, function sync(err, data) {
+                    if (err) {
+                        console.log('Error uploading file:', err);
+                        res.status(400).json({
+                            error: 'true',
+                            msg: 'Error editando foto de perfil'
+                        })  
+                    } else {
+                        console.log('Upload success at:', data.Location);
+                        res.status(200).json({
+                            error: 'false',
+                            msg: 'Foto de perfil agregada con éxito'
+                        })                              
+                    }
+                });  
+        
             }
         }
 
