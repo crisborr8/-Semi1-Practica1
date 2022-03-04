@@ -2,26 +2,20 @@ import React, { Component } from 'react';
 
 import FileUploadComponent from '../../fileUpload/upload.js';
 
-function getAlbums(){
-    var albumes = []
-    for(var i = 0; i < 15; i++){
-        albumes.push({'id':i, 'nombre': 'Drop ' + (i + 1)});
-    }
-    return albumes;
-}
-
 class Subir_fotos extends Component{
     constructor(props){
         super(props);
         this.state = {
-            albums: getAlbums(),
+            albums: [],
+            name: '',
             idAlbum: -1,
             nombreAlbum: 'Seleccione un album',
             params:
                 {
-                  cantidad: 10,
+                  cantidad: 1,
                   width: '100%',
-                  height: '100%'
+                  height: '100%',
+                  reg_files: []
                 }
         };
     }
@@ -31,6 +25,50 @@ class Subir_fotos extends Component{
     getAlbumName(){
         if (this.state.idAlbum === -1) return "";
         return this.state.nombreAlbum;
+    }
+    setName(evt){
+        this.setState({
+            name: evt.target.value
+        });
+    }
+    subirFoto(){
+        if (this.state.reg_psw1 == this.state.reg_psw2){
+            const requestOptions = {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    idalbum: this.state.idAlbum,
+                    nombre: this.state.name,
+                    foto: this.state.params.reg_files[0].base64
+                })
+            };
+            fetch(sessionStorage.getItem("url") + "/newPhoto", requestOptions).then(response => response.json()).then(data => {
+                console.log(data)
+            });
+        } else {
+            alert("Contraseñas no son iguales")
+        }
+        
+    }
+    componentDidMount(){
+        var albumes = []
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                idusuario: sessionStorage.getItem("id")
+            })
+        };
+        fetch(sessionStorage.getItem("url") + "/userAlbum", requestOptions).then(response => response.json()).then(data => {
+            console.log(data)
+            if (data.error == "false"){
+                data.msg.forEach(function(album){
+                    console.log(album.nombre)
+                    albumes.push({'id':album.idalbum, 'nombre': album.nombre});
+                })
+                this.setState({albums: albumes})
+            }
+        });
     }
     render(){
         return (
@@ -50,11 +88,17 @@ class Subir_fotos extends Component{
                                     ))}
                                 </div>
                                 <p/>
+                                <div class="form-group">
+                                    <input value={this.state.name} onChange={evt => this.setName(evt)} type="text" name="logname" class="form-style" placeholder="Nombre del album" id="logname" autocomplete="off"/>
+                                    <i class="input-icon uil uil-images"></i>
+                                </div>	
+                                <p/>
+                                    <div class="form-group mt-2">
+                                        <FileUploadComponent params={this.state.params}/>
+                                    </div>
+                                <p/>
                                 <div class="section  col-md-4">
-                                    <a  class="btn mt-4">Subir</a>
-                                </div>
-                                <div class="form-group mt-2">
-                                    <FileUploadComponent params={this.state.params}/>
+                                    <a  class="btn mt-4" onClick={() => this.subirFoto()}>Subir</a>
                                 </div>
                             </div>
                         </div>

@@ -21,8 +21,10 @@ class Login extends Component {
             reg_name: '',
             reg_psw1: '',
             reg_psw2: '',
-            reg_files: []
+            reg_files: [],
         };
+        //sessionStorage.setItem('url', "http://3.144.234.132:3000")
+        sessionStorage.setItem('url', "http://52.90.221.15:3000")
     }
     login_setUser(evt){
         this.setState({
@@ -56,9 +58,6 @@ class Login extends Component {
     }
     ingresar(){
         //const url = 'https://reqres.in/api/posts';
-        const url = 'http://54.145.134.132:3000/login';
-        console.log(this.state.login_user);
-        console.log(this.state.login_psw);
         const requestOptions = {
             method: 'POST',
             headers: { 
@@ -71,71 +70,38 @@ class Login extends Component {
                 contra: this.state.login_psw
             })
         };
-        fetch(url, requestOptions).then(response => response.json()).then(data => {
-            console.log(data)
-            //sessionStorage.setItem("userToken", '');
-            //this.setState({isLoogedIn: true})
+        fetch(sessionStorage.getItem("url") + "/login", requestOptions).then(response => response.json()).then(data => {
+            if (data.error == "false"){
+                var msg = data.msg
+                console.log(msg)
+                sessionStorage.setItem("albums", msg.albums);
+                sessionStorage.setItem("fotos", msg.fotos);
+                sessionStorage.setItem("id", msg.idusuario);
+                sessionStorage.setItem("nombre", msg.name);
+                sessionStorage.setItem("usuario", msg.username);
+                sessionStorage.setItem("foto_perfil", msg.valor);
+                this.setState({isLoogedIn: true})
+            }
         });
     }
-    getBase64 = file => {
-        return new Promise(resolve => {
-          let fileInfo;
-          let baseURL = "";
-          // Make new FileReader
-          let reader = new FileReader();
-    
-          // Convert the file to base64 text
-          reader.readAsDataURL(file);
-    
-          // on reader load somthing...
-          reader.onload = () => {
-            // Make a fileInfo Object
-            console.log("Called", reader);
-            baseURL = reader.result;
-            console.log(baseURL);
-            resolve(baseURL);
-          };
-          console.log(fileInfo);
-        });
-      };
     registro(){
-        const url = 'http://54.145.134.132:3000/newUser';
-        console.log(this.state.reg_name);
-        console.log(this.state.reg_user);
-        console.log(this.state.reg_psw1);
-        console.log(this.state.reg_psw2);
-        console.log(this.state.reg_psw2);
-        console.log(this.state.params.reg_files);
-        this.state.params.reg_files.forEach(f => {
-            var file = f.file
-            console.log(file);
-            this.getBase64(file).then(result => {
-                file["base64"] = result;
-                console.log("File Is", file);
-                this.setState({
-                base64URL: result,
-                file
-                });
-            })
-            .catch(err => {
-                console.log(err);
+        if (this.state.reg_psw1 == this.state.reg_psw2){
+            const requestOptions = {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    username: this.state.reg_user,
+                    name: this.state.reg_name,
+                    contra: this.state.reg_psw1,
+                    foto: this.state.params.reg_files[0].file.base64
+                })
+            };
+            fetch(sessionStorage.getItem("url") + "/newUser", requestOptions).then(response => response.json()).then(data => {
+                console.log(data)
             });
-        })
-        const requestOptions = {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                usernamesr: this.state.reg_user,
-                name: this.state.reg_name,
-                contra: this.state.reg_psw1,
-                foto: this.state.base64URL
-            })
-        };
-        fetch(url, requestOptions).then(response => response.json()).then(data => {
-            console.log(data)
-            //sessionStorage.setItem("userToken", '');
-            //this.setState({isLoogedIn: true})
-        });
+        } else {
+            alert("Contraseñas no son iguales")
+        }
         
     }
     render(){

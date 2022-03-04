@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, useEffect } from 'react';
 
 import './inicio.css';
 import './dropdown.css';
@@ -12,7 +12,12 @@ import Ver_Album from "./ver_album/ver_album.js";
 import Editar from "./editar/editar.js";
 
 function Salir(){
-    sessionStorage.setItem("userToken", '');
+    sessionStorage.setItem("albums", "");
+    sessionStorage.setItem("fotos", "");
+    sessionStorage.setItem("id", "");
+    sessionStorage.setItem("nombre", "");
+    sessionStorage.setItem("usuario", "");
+    sessionStorage.setItem("foto_perfil", "");
     window.location.href = '/';
 }
 
@@ -22,6 +27,7 @@ class Inicio extends Component {
         this.state = {
             link: 'ver',
             class: [' active_link ', '', '', '', '', ''],
+            foto_perfil: sessionStorage.getItem("foto_perfil"),
         };
     }
     changeScreen(screen, idClassActive){
@@ -30,6 +36,54 @@ class Inicio extends Component {
         this.setState({
             link: screen,
             class: newClass
+        });
+    }
+    getBase64 = file => {
+        return new Promise(resolve => {
+          let fileInfo;
+          let baseURL = "";
+          // Make new FileReader
+          let reader = new FileReader();
+    
+          // Convert the file to base64 text
+          reader.readAsDataURL(file);
+    
+          // on reader load somthing...
+          reader.onload = () => {
+            // Make a fileInfo Object
+            baseURL = reader.result;
+            resolve(baseURL);
+          };
+        });
+      };
+    cambiarImagen = e =>{
+        let { file } = this.state;
+        file = e.target.files[0];
+        this.getBase64(file)
+            .then(result => {
+                result = result.split(",")[1]
+                const requestOptions = {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        idusuario: sessionStorage.getItem("id"),
+                        username: sessionStorage.getItem("usuario"),
+                        contra: document.getElementsByName("logpass1")[0].value,
+                        foto: result
+                    })
+                };
+                fetch(sessionStorage.getItem("url") + "/editPhotoUser", requestOptions).then(response => response.json()).then(data => {
+                    if (data.error == "false"){
+                        sessionStorage.setItem("foto_perfil", data.msg) 
+                        this.setState({
+                            foto_perfil: sessionStorage.getItem("foto_perfil")
+                        });
+                    }
+                    console.log(data)
+                });
+            })
+            .catch(err => {
+                console.log(err);
         });
     }
     render (){
@@ -44,23 +98,25 @@ class Inicio extends Component {
                     <div class="row">
                         <div class="col-md-4">
                             <div class="profile-img">
-                                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS52y5aInsxSm31CvHOFHWujqUx_wWTS9iM6s7BAm21oEN_RiGoog" alt=""/>
-                                <div class="file btn btn-lg btn-primary">
-                                    Cambiar foto
-                                    <input type="file" name="file"/>
-                                </div>
+                                <img src={this.state.foto_perfil} id="foto_perfil" alt=""/>
+                                {this.state.link === 'modifiar' && 
+                                    <div class="file btn btn-lg btn-primary">
+                                        Cambiar foto
+                                        <input onChange={this.cambiarImagen} type="file" name="file"/>
+                                    </div>
+                                }
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="profile-head">
-                                <h5>
-                                    Nombre Usuario
+                                <h5 id="NombreUsuario">
+                                    {sessionStorage.getItem("usuario")}
                                 </h5>
-                                <h6>
-                                    Nombre completo del usuario
+                                <h6 id="NombreNombre">
+                                    {sessionStorage.getItem("nombre")}
                                 </h6>
-                                <p class="proile-rating">Albums creados - <span>13</span></p>
-                                <p class="proile-rating">Fotografias subidas - <span>810</span></p>
+                                <p class="proile-rating">Albums creados - <span>{sessionStorage.getItem("albums")}</span></p>
+                                <p class="proile-rating">Fotografias subidas - <span>{sessionStorage.getItem("fotos")}</span></p>
                             </div>
                         </div>
                         <div class="col-md-2">

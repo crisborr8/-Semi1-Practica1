@@ -13,22 +13,52 @@ class Ver_Album extends Component{
         super(props);
         this.state = {
             list: [],
-            albums: getAlbums(),
+            albums: [],
             nombreAlbum: 'Seleccione un album',
         };
     }
     setFotos_Album(idAlbum, nombreAlbum){
         this.setState({list : []})
         var new_list = [];
-        console.log("aqui estamos");
-        var k = idAlbum;
-        var url = "https://bootstrapious.com/i/snippets/sn-profile/img-";
-        for(var i = 0; i < 20; i++){
-            new_list.push(url + k + ".jpg");
-            if (k == 6) k = 3;
-            else k++;
-        }
-        this.setState({list: new_list, nombreAlbum: nombreAlbum});
+
+
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                idalbum: idAlbum
+            })
+        };
+        fetch(sessionStorage.getItem("url") + "/userPhotos", requestOptions).then(response => response.json()).then(data => {
+            console.log(data)
+            if (data.error == "false"){
+                data.msg.forEach(function(foto){
+                    console.log(foto.nombre)
+                    new_list.push(foto.valor);
+                })
+                this.setState({list: new_list, nombreAlbum: nombreAlbum});
+            }
+        });
+    }
+    componentDidMount(){
+        var albumes = []
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                idusuario: sessionStorage.getItem("id")
+            })
+        };
+        fetch(sessionStorage.getItem("url") + "/userAlbum", requestOptions).then(response => response.json()).then(data => {
+            console.log(data)
+            if (data.error == "false"){
+                data.msg.forEach(function(album){
+                    console.log(album.nombre)
+                    albumes.push({'id':album.idalbum, 'nombre': album.nombre});
+                })
+                this.setState({albums: albumes})
+            }
+        });
     }
     render(){
         return (
