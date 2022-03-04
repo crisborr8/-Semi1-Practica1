@@ -242,13 +242,13 @@ def editPhotoUser():
                 Key = 'Fotos_Perfil/{}.jpg'.format(valor),
                 ContentType = 'image'
             )
+            #set result
+            result['error'] = 'false'
+            result['msg'] = os.environ['BUCKET_URL']+'Fotos_Perfil/'+valor+'.jpg'
         else:#password error
             #set result
             result['error'] = 'true'
             result['msg'] = 'Contraseña incorrecta'
-        #set result
-        result['error'] = 'false'
-        result['msg'] = 'Foto de perfil agregada con exito'
     except:#error trying to update
         result['error'] = 'true'
         result['msg'] = 'Error editando foto de perfil'
