@@ -101,6 +101,7 @@ app.post("/login", async (req, res) => {
                         idusuario: respuesta[0][0].idusuario,
                         username: respuesta[0][0].username,
                         nombre: respuesta[0][0].nombre,
+                        valor: respuesta[0][0].valor,
                         albums: respuesta[2][0].albums,
                         fotos: respuesta[3][0].fotos,
                     }
