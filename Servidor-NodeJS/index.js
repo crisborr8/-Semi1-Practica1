@@ -543,7 +543,7 @@ app.patch("/editPhotoUser", async (req, res) => {
                         console.log('Upload success at:', data.Location);
                         res.status(200).json({
                             error: 'false',
-                            msg: 'Foto de perfil agregada con éxito'
+                            msg: data.Location
                         })                              
                     }
                 });  
