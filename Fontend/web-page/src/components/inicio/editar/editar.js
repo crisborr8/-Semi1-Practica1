@@ -43,12 +43,13 @@ class Editar extends Component {
                     document.getElementById("NombreUsuario").innerHTML = this.state.user
                     sessionStorage.setItem("nombre", this.state.name);
                     document.getElementById("NombreNombre").innerHTML = this.state.name
+                    document.getElementById("edit_error").innerHTML = "Datos actualizados"
                 } else{
-
+                    document.getElementById("edit_error").innerHTML = "Contraseñas o datos incorrectos"
                 }
             });
         } else {
-            alert("Contraseñas no son iguales")
+            document.getElementById("edit_error").innerHTML = "Contraseñas no cohinciden"
         }
     }
     render(){
@@ -56,7 +57,8 @@ class Editar extends Component {
         <>
             <div class="py-4 px-4">
                 <div class="d-flex align-items-center justify-content-between mb-3">
-                    <h5 class="mb-0">Editar datos</h5>
+                    <h5 class="mb-0">Editar datos</h5>                                                      
+                    <p id="edit_error" class="mb-0 mt-4 text-center"></p>
                 </div>
                 <div class="row">
                     <div class="section text-center">
