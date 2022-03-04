@@ -419,7 +419,7 @@ app.post("/userPhotos", async (req, res) => {
 app.patch("/editAlbum", async (req, res) => {
     var idalbum = req.body.idalbum;
     var idusuario = req.body.idusuario;
-    var album = req.body.album; 
+    var album = req.body.nombre; 
 
     var operacion = 'AA';
     var nombre = null; 
