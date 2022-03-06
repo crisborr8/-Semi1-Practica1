@@ -35,7 +35,7 @@ app.get("/", async (req, res) => {
 
     res.status(200).json({
         error: 'false',
-        msg: 'Hola'
+        msg: 'Hola desde el servidor alterno'
     })      
 
 
