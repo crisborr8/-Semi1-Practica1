@@ -455,8 +455,8 @@ app.patch("/editAlbum", async (req, res) => {
 
 app.delete("/deleteAlbum", async (req, res) => {
     var idalbum = req.body.idalbum;
-    
-    var idusuario = null;
+    var idusuario = req.body.idusuario;
+
     var album = null;
 
     var operacion = 'EA';
@@ -473,7 +473,7 @@ app.delete("/deleteAlbum", async (req, res) => {
             })
         }else{
             let respuesta = JSON.parse(JSON.stringify(result));
-    
+            console.log(respuesta);
             let resultado = respuesta[1][0].existe 
             if (resultado == 'FALSE'){
                 res.status(400).json({
@@ -483,7 +483,10 @@ app.delete("/deleteAlbum", async (req, res) => {
             } else {
                 res.status(200).json({
                     error: 'false',
-                    msg: 'Album eliminado con éxito'
+                    msg: {
+                        albums: respuesta[2][0].albums,
+                        fotos: respuesta[3][0].fotos
+                    }
                 })              
             }
         }
