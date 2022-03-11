@@ -153,7 +153,7 @@ def userPhotos():
         cur.close()
     return jsonify(result)
 
-@app.route('/editAlbum', methods=['PATCH'])
+@app.route('/editAlbum', methods=['PUT'])
 def editAlbum():
     #result
     result = {
@@ -201,6 +201,7 @@ def deleteAlbum():
     }
     #data from request
     data = request.get_json()
+    idusuario = data.get('idusuario')
     idalbum = data.get('idalbum')
     #query
     sql = "DELETE FROM PHOTO WHERE idalbum = {}".format(idalbum)
@@ -213,9 +214,23 @@ def deleteAlbum():
         sql = "DELETE FROM ALBUM WHERE idalbum = {}".format(idalbum)
         cur.execute(sql)
         mysql.connection.commit()
+        usuario = {
+            'albums': 0,
+            'fotos': 0
+        }
+        #count albums
+        sql = "SELECT COUNT(*) AS albums FROM USUARIO AS u, ALBUM AS a WHERE u.idusuario = a.idusuario AND u.idusuario = {}".format(idusuario)
+        cur.execute(sql)
+        data = cur.fetchall()
+        usuario['albums'] = data[0][0]
+        #count photos
+        sql = "SELECT COUNT(*) AS fotos FROM USUARIO AS u, ALBUM AS a, PHOTO AS p WHERE u.idusuario = a.idusuario AND a.idalbum = p.idalbum AND u.idusuario = {}".format(idusuario)
+        cur.execute(sql)
+        data = cur.fetchall()
+        usuario['fotos'] = data[0][0]
         #set result
         result['error'] = 'false'
-        result['msg'] = 'Album eliminado con exito'
+        result['msg'] = usuario
     except:#error trying to update
         #set result
         result['error'] = 'true'

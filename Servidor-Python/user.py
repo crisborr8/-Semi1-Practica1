@@ -154,7 +154,7 @@ def userPhoto():
     }
     return jsonify(foto_)
 
-@app.route('/editUser', methods=['PATCH'])
+@app.route('/editUser', methods=['PUT'])
 def editUser():
     #result
     result = {
@@ -197,7 +197,7 @@ def editUser():
         cur.close()
     return jsonify(result)
 
-@app.route('/editPhotoUser', methods=['PATCH'])
+@app.route('/editPhotoUser', methods=['PUT'])
 def editPhotoUser():
     #result
     result = {
