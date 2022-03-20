@@ -1,9 +1,11 @@
-from __main__ import app, mysql, client
+from __main__ import app, mysql, client, client_rekognition
 from flask import jsonify, request
 from datetime import datetime
 import hashlib
 import base64
 import os
+
+from itsdangerous import json
 
 @app.route('/newUser', methods=['POST'])
 def newUser():
@@ -108,16 +110,10 @@ def oneUser():
                 'username': row[1],
                 'name': row[2],
                 "valor": os.environ['BUCKET_URL']+'Fotos_Perfil/'+row[3]+'.jpg',
-                'albums': 0,
                 'fotos': 0
             }
-            #count albums
-            sql = "SELECT COUNT(*) AS albums FROM USUARIO AS u, ALBUM AS a WHERE u.idusuario = a.idusuario AND u.username = '{}'".format(username)
-            cur.execute(sql)
-            data = cur.fetchall()
-            usuario['albums'] = data[0][0]
             #count photos
-            sql = "SELECT COUNT(*) AS fotos FROM USUARIO AS u, ALBUM AS a, PHOTO AS p WHERE u.idusuario = a.idusuario AND a.idalbum = p.idalbum AND u.username = '{}'".format(username)
+            sql = "SELECT COUNT(*) AS fotos FROM USUARIO AS u, PHOTO AS p WHERE u.idusuario = p.idusuario AND u.username = '{}'".format(username)
             cur.execute(sql)
             data = cur.fetchall()
             usuario['fotos'] = data[0][0]
@@ -132,6 +128,143 @@ def oneUser():
         #no user found
         result['error'] = 'true'
         result['msg'] = 'Error al hacer login'
+    finally:
+        cur.close()
+    return jsonify(result)
+
+@app.route('/loginFoto', methods=['POST'])
+def loginFoto():
+    #result
+    result = {
+        'error': '',
+        'msg': ''
+    }
+    #data from request
+    data = request.get_json()
+    username = data.get('username')
+    foto1 = data.get('foto')
+    #decode buffer from base64
+    foto64 = base64.b64decode(foto1)
+    #query
+    sql = "SELECT valor FROM USUARIO WHERE username = '{}'".format(username)
+    #execute query
+    cur = mysql.connection.cursor()
+    try:
+        cur.execute(sql)
+        data = cur.fetchall()
+        if len(data) > 0:
+            valor = data[0][0]
+            obj = client.get_object(
+                Bucket = os.environ['BUCKET'],
+                Key = 'Fotos_Perfil/{}.jpg'.format(valor)
+            )
+            #bytes buffer
+            foto = obj.get('Body').read()
+            response = client_rekognition.compare_faces(
+                SourceImage = {
+                    'Bytes': foto
+                },
+                TargetImage = {
+                    'Bytes': foto64
+                },
+                SimilarityThreshold = 80
+            )
+            if len(response['FaceMatches']) > 0 :
+                #query
+                sql = "SELECT idusuario,username,name,valor FROM USUARIO WHERE username = '{}'".format(username)
+                #execute query
+                cur = mysql.connection.cursor()
+                cur.execute(sql)
+                data = cur.fetchall()
+                row = data[0]
+                #set data in user
+                usuario = {
+                    'idusuario': row[0],
+                    'username': row[1],
+                    'name': row[2],
+                    "valor": os.environ['BUCKET_URL']+'Fotos_Perfil/'+row[3]+'.jpg',
+                    'fotos': 0
+                }
+                #count photos
+                sql = "SELECT COUNT(*) AS fotos FROM USUARIO AS u, PHOTO AS p WHERE u.idusuario = p.idusuario AND u.username = '{}'".format(username)
+                cur.execute(sql)
+                data = cur.fetchall()
+                usuario['fotos'] = data[0][0]
+                #set result
+                result['error'] = 'false'
+                result['msg'] = usuario
+            else:
+                result['error'] = 'true'
+                result['msg'] = 'No hay coincidencia'
+        else:
+            result['error'] = 'true'
+            result['msg'] = 'El usuario no existe'
+    except:
+        result['error'] = 'true'
+        result['msg'] = 'Error al ingresar'
+    finally:
+        cur.close()
+    return jsonify(result)
+
+@app.route('/tagFotoPerfil', methods=['POST'])
+def tagFotoPerfil():
+    #result
+    result = {
+        'error': '',
+        'msg': ''
+    }
+    #data from request
+    data = request.get_json()
+    idusuario = data.get('idusuario')
+    #query
+    sql = "SELECT valor FROM USUARIO WHERE idusuario = '{}'".format(idusuario)
+    #execute query
+    cur = mysql.connection.cursor()
+    try:
+        cur.execute(sql)
+        data = cur.fetchall()
+        valor = data[0][0]
+        obj = client.get_object(
+            Bucket = os.environ['BUCKET'],
+            Key = 'Fotos_Perfil/{}.jpg'.format(valor)
+        )
+        #bytes buffer
+        foto = obj.get('Body').read()
+        response = client_rekognition.detect_faces(
+            Image = {
+                'Bytes': foto
+            },
+            Attributes = ['ALL']
+        )
+        if len(response['FaceDetails']) > 0:
+            detalles = response['FaceDetails'][0]
+            genero = detalles['Gender']['Value']
+            cadena = 'Genero: {}'.format(genero)
+            edad_min = detalles['AgeRange']['Low']
+            edad_max = detalles['AgeRange']['High']
+            cadena += ' Edad {}-{}'.format(edad_min,edad_max)
+            barba = detalles['Beard']['Value']
+            if (barba):
+                cadena += ' tiene barba'
+            lentes = detalles['Eyeglasses']['Value']
+            if (lentes):
+                cadena += ' tiene lentes'
+            ojos_abiertos = detalles['EyesOpen']['Value']
+            if (ojos_abiertos):
+                cadena += ' tiene los ojos abiertos'
+            bigote = detalles['Mustache']['Value']
+            if (bigote):
+                cadena += ' tiene bigote'
+            sonrisa = detalles['Smile']['Value']
+            if (sonrisa):
+                cadena += ' esta sonriendo'
+            result['msg'] = cadena
+        else:
+            result['error'] = 'true'
+            result['msg'] = 'Error no se reconoce rostro'
+    except:
+        result['error'] = 'true'
+        result['msg'] = 'Error al obtener tag'
     finally:
         cur.close()
     return jsonify(result)
@@ -289,3 +422,4 @@ def photoPerfil():
     finally:
         cur.close()
     return jsonify(result)
+
