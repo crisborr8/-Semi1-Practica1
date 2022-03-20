@@ -12,6 +12,13 @@ client = boto3.client(
     aws_secret_access_key = os.environ['SECRET_KEY']
 )
 
+client_rekognition = boto3.client(
+    'rekognition',
+    region_name = os.environ['REGION'],
+    aws_access_key_id = os.environ['KEY_RECOGNITION'],
+    aws_secret_access_key = os.environ['SECRET_KEY_RECOGNITION']    
+)
+
 app = Flask(__name__)
 
 #CORS(app)
