@@ -1,0 +1,39 @@
+/*INSTALAR NGINX*/
+sudo apt update
+sudo apt install nginx
+
+system status nginx
+//devuelve Active: active (running)
+//se puede ingresar a nginx por medio de la ip publica
+
+/*CONFIGURAR COMO LOADBALANCER*/
+
+sudo touch /etc/nginx/conf.d/load-balancer.conf
+sudo rm -r /etc/nginx/sites-enabled/default
+sudo nano /etc/nginx/conf.d/load-balancer.conf
+//si hay problema al guardar el archivo
+	sudo chmod 777 /etc/nginx/conf.d
+	sudo chmod 777 /etc/nginx/conf.d/load-balancer.conf
+/*INI CONTENIDO DEL ARCHIVO*/
+upstream backend {
+	server IP:PUERTO;
+	server IP:PUERTO;
+}
+
+server {
+	listen 80;
+	location / {
+		proxy_pass http://backend;
+	}
+}
+/*FIN CONTENIDO DEL ARCHIVO*/
+
+sudo systemctl restart nginx
+//se puede ingresar al balanceador por medio de la ip
+//metodo por default round robin
+
+/*FUENTES
+https://www.digitalocean.com/community/tutorials/how-to-install-nginx-on-ubuntu-20-04-es
+https://www.youtube.com/watch?v=xJ7BKnZbwCU&list=WL&index=69&t=195s
+http://nginx.org/en/docs/http/load_balancing.html
+*/

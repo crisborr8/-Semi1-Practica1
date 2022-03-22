@@ -1,4 +1,4 @@
-from __main__ import app, mysql, client, client_rekognition
+from __main__ import app, mysql, client, client_rekognition, client_translate
 from datetime import datetime
 from flask import jsonify, request
 import base64
@@ -482,4 +482,36 @@ def fotoTag():
         result['msg'] = 'Error al obtener fotos'
     return jsonify(result)
 
-#@app.route('/traducirTexto', methods=['POST'])
+@app.route('/traducirTexto', methods=['POST'])
+def traducirText():
+    #result
+    result = {
+        'error': '',
+        'msg': ''
+    }
+    #data from request
+    data = request.get_json()
+    cadena = data.get('cadena')
+    idioma = data.get('idioma')
+    if (idioma == 'English'):
+        idioma = 'en'
+    if (idioma == 'Japanese'):
+        idioma = 'ja'
+    if (idioma == 'Russian'):
+        idioma = 'ru'
+    else:
+        print('JAnt')
+    try:
+        response = client_translate.translate_text(
+            Text = cadena,
+            SourceLanguageCode = 'auto',
+            TargetLanguageCode = idioma
+        )
+        #set result
+        result['error'] = 'false'
+        result['msg'] = response['TranslatedText']
+    except:
+        #set result
+        result['error'] = 'true'
+        result['msg'] = 'Error al traducir texto'
+    return jsonify(result)
