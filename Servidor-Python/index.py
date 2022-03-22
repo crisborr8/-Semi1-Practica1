@@ -16,7 +16,14 @@ client_rekognition = boto3.client(
     'rekognition',
     region_name = os.environ['REGION'],
     aws_access_key_id = os.environ['KEY_RECOGNITION'],
-    aws_secret_access_key = os.environ['SECRET_KEY_RECOGNITION']    
+    aws_secret_access_key = os.environ['SECRET_KEY_RECOGNITION']
+)
+
+client_translate = boto3.client(
+    'translate',
+    region_name = os.environ['REGION'],
+    aws_access_key_id = os.environ['KEY_TRANSLATE'],
+    aws_secret_access_key = os.environ['SECRET_KEY_TRANSLATE']
 )
 
 app = Flask(__name__)
