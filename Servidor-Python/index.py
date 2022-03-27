@@ -26,6 +26,13 @@ client_translate = boto3.client(
     aws_secret_access_key = os.environ['SECRET_KEY_TRANSLATE']
 )
 
+client_lex = boto3.client(
+    'lexv2-runtime',
+    region_name = os.environ['REGION'],
+    aws_access_key_id = os.environ['KEY_LEX'],
+    aws_secret_access_key = os.environ['SECRET_KEY_LEX']
+)
+
 app = Flask(__name__)
 
 #CORS(app)
@@ -45,6 +52,7 @@ def index():
 
 import user
 import photo
+import bot
 
 if __name__ == '__main__':
     app.run(port = 3000, host='0.0.0.0',debug=True)
