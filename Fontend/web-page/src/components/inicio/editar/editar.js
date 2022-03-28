@@ -4,9 +4,9 @@ class Editar extends Component {
     constructor(props){
         super(props);
         this.state = {
-            name: '',
+            name: sessionStorage.getItem("nombre"),
             psw: '',
-            user: '',
+            user: sessionStorage.getItem("usuario"),
         };
     }
     setName(evt){
@@ -27,7 +27,7 @@ class Editar extends Component {
     editar(){
         if (this.state.reg_psw1 == this.state.reg_psw2){
             const requestOptions = {
-                method: 'PATCH',
+                method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
                     idusuario: sessionStorage.getItem("id"),

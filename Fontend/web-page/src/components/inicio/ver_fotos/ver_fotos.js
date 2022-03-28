@@ -4,35 +4,59 @@ class Ver_fotos extends Component{
     constructor(props){
         super(props);
         this.state = {
-            fotos: this.setFotos_Album(),
+            foto: "https://static.eldiario.es/clip/71d118ff-5ef2-449c-be8a-6c321304fa70_16-9-aspect-ratio_default_0.jpg",
+            nombre: "nombre",
+            descripcion: "descripcion",
+            idiomas: ["Japanese", "English", "Russian"],
+            descripcion_traducida: ""
         };
     }
-    setFotos_Album(){
-        var new_fotos= [];
-        var k = 3;
-        var url = "https://bootstrapious.com/i/snippets/sn-profile/img-";
-        for(var i = 0; i < 20; i++){
-            new_fotos.push(url + k + ".jpg");
-            if (k == 6) k = 3;
-            else k++;
-        }
-        return new_fotos;
+    traducir(idioma){
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                cadena: this.state.descripcion,
+                idioma: idioma
+            })
+        };
+        fetch(sessionStorage.getItem("url") + "/traducirTexto", requestOptions).then(response => response.json()).then(data => {
+            console.log(data)
+            if (data.error == "false"){
+                this.setState({descripcion_traducida: data.msg});
+            }
+        });
     }
     render(){
         return (
             <>
                <div class="py-4 px-4">
                     <div class="d-flex align-items-center justify-content-between mb-3">
-                        <h5 class="mb-0">Todas las fotos</h5>
+                        <h5 class="mb-0">Ver foto</h5>                                
+                        <p id="subir_error" class="mb-0 mt-4 text-center"></p>
                     </div>
                     <div class="row">
                         <div class="section text-center">
-                            <div class="sec-center"> 
-                                <div class="row">
-                                    {this.state.fotos.map(url => (
-                                        <div class="col-lg-4 mb-4 pr-lg-1"><img src={url} alt="" class="img-fluid rounded shadow-sm"/></div>
-                                    ))}
+                            <div class="sec-center"> 	
+                                <div>
+                                    <input class="dropdown" type="checkbox" id="dropdown" name="dropdown"/>
+                                    <label class="for-dropdown" for="dropdown">Idiomas<i class="uil uil-arrow-down"></i></label>
+                                    <div class="section-dropdown"> 
+                                        {this.state.idiomas.map(idioma => (
+                                            <a href="#" onClick={() => this.traducir(idioma)}>{idioma}<i class="uil uil-arrow-right"></i></a>
+                                        ))}
+                                    </div>
+                                    <p/>
                                 </div>
+                                <div class="profile-img">
+                                    <img src={this.state.foto} id="foto_ver" alt=""/>
+                                </div>
+                                <p>Nombre</p>
+                                {this.state.nombre}
+                                <p>Descripcion</p>
+                                {this.state.descripcion}
+                                <p>Descripcion traducida</p>
+                                {this.state.descripcion_traducida}
                             </div>
                         </div>
                     </div>

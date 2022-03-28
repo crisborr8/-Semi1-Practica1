@@ -1,14 +1,12 @@
-import React, { Component, useEffect } from 'react';
+import React, { Component } from 'react';
 
 import './inicio.css';
 import './dropdown.css';
 
-import Ver_fotos from "./ver_fotos/ver_fotos.js";
 import Subir_fotos from "./subir_fotos/subir_fotos.js";
 
-import Editar_Album from "./editar_album/editar_album.js";
-import Crear_Album from "./crear_album/crear_album.js";
 import Ver_Album from "./ver_album/ver_album.js";
+import Ver_fotos from "./ver_fotos/ver_fotos.js";
 import Editar from "./editar/editar.js";
 
 function Salir(){
@@ -28,7 +26,30 @@ class Inicio extends Component {
             link: 'ver',
             class: [' active_link ', '', '', '', '', ''],
             foto_perfil: sessionStorage.getItem("foto_perfil"),
+            datos: ['masculino', '20', 'asdf', 'fda'],
         };
+        //this.getDataImagen();
+    }
+    getDataImagen(){
+        const requestOptions = {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Credentials": "true"
+            },
+            body: JSON.stringify({ 
+                idusuario: sessionStorage.getItem("id")
+            })
+        };
+        fetch(sessionStorage.getItem("url") + "/tagsFotoPerfil", requestOptions).then(response => response.json()).then(data => {
+            if (data.error == "false"){
+                var msg = data.msg
+                console.log(msg)
+            } else {
+                console.log(data)
+            }
+        });
     }
     changeScreen(screen, idClassActive){
         let newClass = ['', '', '', '', '', ''];
@@ -63,7 +84,7 @@ class Inicio extends Component {
             .then(result => {
                 result = result.split(",")[1]
                 const requestOptions = {
-                    method: 'PATCH',
+                    method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
                         idusuario: sessionStorage.getItem("id"),
@@ -78,6 +99,9 @@ class Inicio extends Component {
                         this.setState({
                             foto_perfil: sessionStorage.getItem("foto_perfil")
                         });
+                        //this.getDataImagen();
+                    } else{
+                        document.getElementById("edit_error").innerHTML = "Contraseñas o datos incorrectos"
                     }
                     console.log(data)
                 });
@@ -115,8 +139,7 @@ class Inicio extends Component {
                                 <h6 id="NombreNombre">
                                     {sessionStorage.getItem("nombre")}
                                 </h6>
-                                <p class="proile-rating">Albums creados - <span>{sessionStorage.getItem("albums")}</span></p>
-                                <p class="proile-rating">Fotografias subidas - <span>{sessionStorage.getItem("fotos")}</span></p>
+                                <p class="proile-rating">Fotografias subidas - <span id="cant_fotos">{sessionStorage.getItem("fotos")}</span></p>
                             </div>
                         </div>
                         <div class="col-md-2">
@@ -127,14 +150,15 @@ class Inicio extends Component {
                     <div class="row">
                         <div class="col-md-4">
                             <div class="profile-work">
+                                <p>Datos</p>
+                                Genero: {this.state.datos[0]}<br/>
+                                Edad: {this.state.datos[1]}<br/>
+                                Info1: {this.state.datos[2]}<br/>
+                                Info2: {this.state.datos[3]}<br/>
                                 <p>Inicio</p>
                                 <a href="#" onClick={() => this.changeScreen('ver', 1)} class={this.state.class[1]}>Ir a inicio</a><br/>
-                                <p>Albums</p>
-                                <a href="#" onClick={() => this.changeScreen('crear_album', 2)} class={this.state.class[2]}>Crear album</a><br/>
-                                <a href="#" onClick={() => this.changeScreen('editar_album', 3)} class={this.state.class[3]}>Editar album</a><br/>
                                 <p>Fotos</p>
-                                <a href="#" onClick={() => this.changeScreen('ver_fotos', 4)} class={this.state.class[4]}>Ver todas las fotos</a><br/>
-                                <a href="#" onClick={() => this.changeScreen('subir_fotos', 5)} class={this.state.class[5]}>Subir foto en album</a><br/>
+                                <a href="#" onClick={() => this.changeScreen('subir_fotos', 5)} class={this.state.class[5]}>Subir foto</a><br/>
                             </div>
                         </div>
                         <div class="col-md-8">
@@ -142,9 +166,7 @@ class Inicio extends Component {
                                 <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
                                     {this.state.link === 'ver' && <Ver_Album/>}
                                     {this.state.link === 'modifiar' && <Editar/>}
-                                    {this.state.link === 'crear_album' && <Crear_Album/>}
-                                    {this.state.link === 'editar_album' && <Editar_Album/>}
-                                    {this.state.link === 'ver_fotos' && <Ver_fotos/>}
+                                    
                                     {this.state.link === 'subir_fotos' && <Subir_fotos/>}
                                 </div>
                             </div>

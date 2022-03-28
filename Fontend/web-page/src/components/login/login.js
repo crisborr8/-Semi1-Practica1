@@ -1,9 +1,63 @@
 import React, { Component } from 'react';
 
 import Inicio from "../inicio/inicio.js";
+import Webcam from "react-webcam";
 import FileUploadComponent from '../fileUpload/upload.js';
 import './login.css';
 
+const WebcamCapture = () => {
+    const webcamRef = React.useRef(null);
+    const capture = React.useCallback(
+        () => {
+          const imageSrc = webcamRef.current.getScreenshot().split(",")[1];
+          console.log(imageSrc);
+          const usr = document.getElementById("logemail").value
+          const requestOptions = {
+              method: 'POST',
+              headers: { 
+                  'Content-Type': 'application/json',
+                  "Access-Control-Allow-Origin": "*",
+                  "Access-Control-Allow-Credentials": "true"
+              },
+              body: JSON.stringify({ 
+                  username: usr,
+                  foto: imageSrc
+              })
+          };
+          //Eliminar luego
+            sessionStorage.setItem("id", 2);
+          window.location.href = '/Inicio';
+          /*fetch(sessionStorage.getItem("url") + "/loginFoto", requestOptions).then(response => response.json()).then(data => {
+              if (data.error == "false"){
+                  var msg = data.msg
+                  console.log(msg)
+                  sessionStorage.setItem("fotos", msg.fotos);
+                  sessionStorage.setItem("id", msg.idusuario);
+                  sessionStorage.setItem("nombre", msg.nombre);
+                  sessionStorage.setItem("usuario", msg.username);
+                  sessionStorage.setItem("foto_perfil", msg.valor);
+                  window.location.href = '/Inicio';
+              } else {
+                  document.getElementById("login_error").innerHTML = "Error, usuario o foto incorrecta"
+              }
+          });*/
+        },
+        [webcamRef]
+      );
+    return (
+      <>
+        <Webcam
+          audio={false}
+          height={480}
+          width={480}
+          ref={webcamRef}
+          screenshotFormat="image/jpg"
+        />
+        <br/>
+        <a class="btn mt-4" onClick={capture}>Ingresar</a>
+      </>
+    );
+  };
 class Login extends Component {
     constructor(props){
         super(props);
@@ -23,8 +77,9 @@ class Login extends Component {
             reg_psw2: '',
             reg_files: [],
         };
-        sessionStorage.setItem('url', "http://3.144.234.132:3000")
-        //sessionStorage.setItem('url', "http://52.90.221.15:3000")
+        sessionStorage.setItem('url', "http://balanceador-tres-semi-1263146624.us-east-2.elb.amazonaws.com:3000")
+        //sessionStorage.setItem('url', "http://3.143.248.15:3000")
+        //sessionStorage.setItem('url', "http://18.118.171.241:3000")
     }
     login_setUser(evt){
         this.setState({
@@ -80,6 +135,7 @@ class Login extends Component {
                 sessionStorage.setItem("nombre", msg.name);
                 sessionStorage.setItem("usuario", msg.username);
                 sessionStorage.setItem("foto_perfil", msg.valor);
+                window.location.href = '/Inicio';
             } else {
                 document.getElementById("login_error").innerHTML = "Error, usuario o contraseña incorrectos"
             }
@@ -123,7 +179,7 @@ class Login extends Component {
         }
     }
     render(){
-        if (sessionStorage.getItem("id") != '') return <Inicio/>
+        if (sessionStorage.getItem("id") !== '') return <Inicio/>
         return (
           <>
               <head>
@@ -152,6 +208,8 @@ class Login extends Component {
                                                           <i class="input-icon uil uil-lock-alt"></i>
                                                       </div>
                                                       <a href="#" class="btn mt-4" onClick={() => this.ingresar()}>Ingresar</a>
+                                                      <br/>
+                                                      <a href="#foto" class="btn mt-4">Ingresar con imagen</a>
                                                       <p id="login_error" class="mb-0 mt-4 text-center"></p>
                                                   </div>
                                               </div>
@@ -185,6 +243,9 @@ class Login extends Component {
                                               </div>
                                           </div>
                                       </div>
+                                  </div>
+                                  <div id="foto">
+                                                      <WebcamCapture/>
                                   </div>
                               </div>
                           </div>

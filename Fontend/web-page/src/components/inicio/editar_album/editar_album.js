@@ -23,43 +23,61 @@ class Editar_Album extends Component{
         });
     }
     cambiarNombre(){
-        const requestOptions = {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                idusuario: sessionStorage.getItem("id"),
-                idalbum: this.state.idAlbum,
-                nombre: this.state.nombreAlbum
-            })
-        };
-        fetch(sessionStorage.getItem("url") + "/editAlbum", requestOptions).then(response => response.json()).then(data => {
-            console.log(data)
-            if (data.error == "false"){
-                this.setAlbumes()
-                document.getElementById("album_error").innerHTML = "Album actualizado"
-            } else{
-                document.getElementById("album_error").innerHTML = "Error al actualizar album"
+        if (this.state.idAlbum != -1){
+            if (this.state.nombreAlbum.length > 0){
+                const requestOptions = {
+                    method: 'PUT',
+                    headers: { 
+                        'Content-Type': 'application/json',},
+                    body: JSON.stringify({ 
+                        idusuario: sessionStorage.getItem("id"),
+                        idalbum: this.state.idAlbum,
+                        nombre: this.state.nombreAlbum
+                    })
+                };
+                fetch(sessionStorage.getItem("url") + "/editAlbum", requestOptions).then(response => response.json()).then(data => {
+                    console.log(data)
+                    if (data.error == "false"){
+                        this.setAlbumes()
+                        document.getElementById("album_error").innerHTML = "Album actualizado"
+                    } else{
+                        document.getElementById("album_error").innerHTML = "Error al actualizar album"
+                    }
+                });
+            } else {
+                document.getElementById("album_error").innerHTML = "Error, el nombre no puede ser vacio"
             }
-        });
+        } else {
+            document.getElementById("album_error").innerHTML = "Error, seleccione un album"
+        }
     }
     eliminarNombre(){
-        const requestOptions = {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                idalbum: this.state.idAlbum,
-            })
-        };
-        fetch(sessionStorage.getItem("url") + "/deleteAlbum", requestOptions).then(response => response.json()).then(data => {
-            console.log(data)
-            if (data.error == "false"){
-                this.setAlbumes()
-                document.getElementById("album_error").innerHTML = "Album eliminado"
-                this.setState({idAlbum: -1, nombreAlbum: 'Seleccione un album'});
-            } else{
-                document.getElementById("album_error").innerHTML = "Error al eliminar album"
-            }
-        });
+        if (this.state.idAlbum != -1){
+            const requestOptions = {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    idalbum: this.state.idAlbum,
+                    idusuario: sessionStorage.getItem("id"),
+                })
+            };
+            fetch(sessionStorage.getItem("url") + "/deleteAlbum", requestOptions).then(response => response.json()).then(data => {
+                console.log(data)
+                if (data.error == "false"){
+                    this.setAlbumes()
+                    document.getElementById("album_error").innerHTML = "Album eliminado"
+                    this.setState({idAlbum: -1, nombreAlbum: 'Seleccione un album'});
+                    sessionStorage.setItem("albums", data.msg.albums);
+                    document.getElementById("cant_albums").innerHTML = data.msg.albums
+                    sessionStorage.setItem("fotos", data.msg.fotos);
+                    document.getElementById("cant_fotos").innerHTML = data.msg.fotos
+                } else{
+                    document.getElementById("album_error").innerHTML = "Error al eliminar album"
+                }
+            });
+        } else {
+            document.getElementById("album_error").innerHTML = "Error, seleccione un album"
+        }
     }
     setAlbumes(){
         var albumes = []
@@ -75,6 +93,7 @@ class Editar_Album extends Component{
             if (data.error == "false"){
                 data.msg.forEach(function(album){
                     console.log(album.nombre)
+                    console.log(album.idalbum)
                     albumes.push({'id':album.idalbum, 'nombre': album.nombre});
                 })
                 this.setState({albums: albumes})

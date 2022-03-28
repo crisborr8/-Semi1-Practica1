@@ -29,10 +29,14 @@ class Crear_Album extends Component {
                     this.setState({
                         name: ''
                     });
+                    sessionStorage.setItem("albums", (parseInt(sessionStorage.getItem("albums")) + 1) + "");
+                    document.getElementById("cant_albums").innerHTML = sessionStorage.getItem("albums")
                 } else{
                     document.getElementById("crear_error").innerHTML = "Error al crear album"
                 }
             });
+        } else {
+            document.getElementById("crear_error").innerHTML = "Error, ingrese un nombre"
         }
     }
     render(){
