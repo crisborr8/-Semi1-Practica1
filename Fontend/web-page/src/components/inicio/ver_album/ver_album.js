@@ -10,21 +10,22 @@ class Ver_Album extends Component{
             nombreAlbum: 'Seleccione un album',
         };
     }
-    setFotos_Album(idAlbum, nombreAlbum){
+    setFotos_Album(nombreAlbum){
         this.setState({list : []})
         var new_list = [];
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
-                idalbum: idAlbum
+                idusuario: sessionStorage.getItem("id"),
+                tag: nombreAlbum
             })
         };
-        fetch(sessionStorage.getItem("url") + "/userPhotos", requestOptions).then(response => response.json()).then(data => {
+        fetch(sessionStorage.getItem("url") + "/fotoTag", requestOptions).then(response => response.json()).then(data => {
             console.log(data)
             if (data.error == "false"){
                 data.msg.forEach(function(foto){
-                    new_list.push({url: foto.valor, nombre: foto.nombre});
+                    new_list.push({url: foto.valor, nombre: foto.nombre, descripcion: foto.descripcion});
                 })
                 console.log(new_list)
                 this.setState({list: new_list, nombreAlbum: nombreAlbum});
@@ -64,12 +65,12 @@ class Ver_Album extends Component{
                 idusuario: sessionStorage.getItem("id")
             })
         };
-        fetch(sessionStorage.getItem("url") + "/userAlbum", requestOptions).then(response => response.json()).then(data => {
+        fetch(sessionStorage.getItem("url") + "/verTags", requestOptions).then(response => response.json()).then(data => {
             console.log(data)
             if (data.error == "false"){
-                data.msg.forEach(function(album){
-                    console.log(album.nombre)
-                    albumes.push({'id':album.idalbum, 'nombre': album.nombre});
+                data.msg.forEach(function(tag){
+                    console.log(tag)
+                    albumes.push({'nombre': tag});
                 })
                 this.setState({albums: albumes})
             }else{
@@ -112,7 +113,7 @@ class Ver_Album extends Component{
                                 <label class="for-dropdown" for="dropdown">Albums<i class="uil uil-arrow-down"></i></label>
                                 <div class="section-dropdown"> 
                                     {this.state.albums.map(album => (
-                                        <a href="#" onClick={() => this.setFotos_Album(album.id, album.nombre)}>{album.nombre}<i class="uil uil-arrow-right"></i></a>
+                                        <a href="#" onClick={() => this.setFotos_Album(album.nombre)}>{album.nombre}<i class="uil uil-arrow-right"></i></a>
                                     ))}
                                 </div>
                                 <p/>

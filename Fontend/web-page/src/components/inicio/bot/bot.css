@@ -1,0 +1,11 @@
+.Tu{
+    text-align: right;
+    padding: 10px;
+}
+.Bot{
+    text-align: left;
+    padding: 10px;
+}
+.chat-bot div{
+    max-height: 300px;
+}

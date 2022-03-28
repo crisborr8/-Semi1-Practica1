@@ -8,6 +8,9 @@ import Subir_fotos from "./subir_fotos/subir_fotos.js";
 import Ver_Album from "./ver_album/ver_album.js";
 import Ver_fotos from "./ver_fotos/ver_fotos.js";
 import Editar from "./editar/editar.js";
+import Bot_reservacion from "./bot/bot_reservacion.js";
+import Bot_flores from "./bot/bot_flores.js";
+import Bot_dentista from "./bot/bot_dentista.js";
 
 function Salir(){
     sessionStorage.setItem("albums", "");
@@ -158,16 +161,22 @@ class Inicio extends Component {
                                 <p>Inicio</p>
                                 <a href="#" onClick={() => this.changeScreen('ver', 1)} class={this.state.class[1]}>Ir a inicio</a><br/>
                                 <p>Fotos</p>
-                                <a href="#" onClick={() => this.changeScreen('subir_fotos', 5)} class={this.state.class[5]}>Subir foto</a><br/>
+                                <a href="#" onClick={() => this.changeScreen('subir_fotos', 2)} class={this.state.class[2]}>Subir foto</a><br/>
+                                <p>Bot</p>
+                                <a href="#" onClick={() => this.changeScreen('bot_flores', 3)} class={this.state.class[3]}>Bot flores</a><br/>
+                                <a href="#" onClick={() => this.changeScreen('bot_dentista', 4)} class={this.state.class[4]}>Bot dentista</a><br/>
+                                <a href="#" onClick={() => this.changeScreen('bot_reservacion', 5)} class={this.state.class[5]}>Bot reservacion</a><br/>
                             </div>
                         </div>
                         <div class="col-md-8">
                             <div class="tab-content profile-tab" id="myTabContent">
                                 <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
                                     {this.state.link === 'ver' && <Ver_Album/>}
-                                    {this.state.link === 'modifiar' && <Editar/>}
-                                    
                                     {this.state.link === 'subir_fotos' && <Subir_fotos/>}
+                                    
+                                    {this.state.link === 'bot_reservacion' && <Bot_reservacion/>}
+                                    {this.state.link === 'bot_flores' && <Bot_flores/>}
+                                    {this.state.link === 'bot_dentista' && <Bot_dentista/>}
                                 </div>
                             </div>
                         </div>

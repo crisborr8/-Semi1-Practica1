@@ -80,7 +80,7 @@ class Subir_fotos extends Component{
                                 <p/>
                                 <div class="form-group">
                                     <input value={this.state.descripcion} onChange={evt => this.setDescrip(evt)} type="text" name="descr" class="form-style" placeholder="Descripcion de la foto" id="descr" autocomplete="off"/>
-                                    <i class="input-icon uil uil-images"></i>
+                                    <i class="input-icon uil uil-align-center"></i>
                                 </div>	
                                 <p/>
                                     <div class="form-group mt-2">
