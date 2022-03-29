@@ -116,3 +116,7 @@ a:hover {
     height: 550px;
     overflow: auto;
 }
+
+.ver_imagen{
+    cursor: pointer;
+}

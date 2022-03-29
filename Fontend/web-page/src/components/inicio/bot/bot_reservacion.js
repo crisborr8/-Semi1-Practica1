@@ -7,8 +7,6 @@ class Bot_reservacion extends Component{
         this.state = {
             mensaje: "",
             conversacion: [
-                {class: "Tu", msj:"holis"},
-                {class: "Bot", msj:"holiwis"}
             ]
         };
     }
@@ -23,6 +21,7 @@ class Bot_reservacion extends Component{
         this.setState({
             conversacion: msj
         })
+        console.log(this.state.mensaje)
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

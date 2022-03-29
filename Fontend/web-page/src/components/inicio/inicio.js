@@ -6,7 +6,6 @@ import './dropdown.css';
 import Subir_fotos from "./subir_fotos/subir_fotos.js";
 
 import Ver_Album from "./ver_album/ver_album.js";
-import Ver_fotos from "./ver_fotos/ver_fotos.js";
 import Editar from "./editar/editar.js";
 import Bot_reservacion from "./bot/bot_reservacion.js";
 import Bot_flores from "./bot/bot_flores.js";
@@ -29,9 +28,9 @@ class Inicio extends Component {
             link: 'ver',
             class: [' active_link ', '', '', '', '', ''],
             foto_perfil: sessionStorage.getItem("foto_perfil"),
-            datos: ['masculino', '20', 'asdf', 'fda'],
+            datos: "",
         };
-        //this.getDataImagen();
+        this.getDataImagen();
     }
     getDataImagen(){
         const requestOptions = {
@@ -45,10 +44,12 @@ class Inicio extends Component {
                 idusuario: sessionStorage.getItem("id")
             })
         };
-        fetch(sessionStorage.getItem("url") + "/tagsFotoPerfil", requestOptions).then(response => response.json()).then(data => {
-            if (data.error == "false"){
-                var msg = data.msg
-                console.log(msg)
+        fetch(sessionStorage.getItem("url") + "/tagFotoPerfil", requestOptions).then(response => response.json()).then(data => {
+            if (data.error != "true"){
+                console.log(data.msg)
+                this.setState({
+                    datos: data.msg,
+                });
             } else {
                 console.log(data)
             }
@@ -154,10 +155,7 @@ class Inicio extends Component {
                         <div class="col-md-4">
                             <div class="profile-work">
                                 <p>Datos</p>
-                                Genero: {this.state.datos[0]}<br/>
-                                Edad: {this.state.datos[1]}<br/>
-                                Info1: {this.state.datos[2]}<br/>
-                                Info2: {this.state.datos[3]}<br/>
+                                {this.state.datos}<br/>
                                 <p>Inicio</p>
                                 <a href="#" onClick={() => this.changeScreen('ver', 1)} class={this.state.class[1]}>Ir a inicio</a><br/>
                                 <p>Fotos</p>
@@ -173,7 +171,6 @@ class Inicio extends Component {
                                 <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
                                     {this.state.link === 'ver' && <Ver_Album/>}
                                     {this.state.link === 'subir_fotos' && <Subir_fotos/>}
-                                    
                                     {this.state.link === 'bot_reservacion' && <Bot_reservacion/>}
                                     {this.state.link === 'bot_flores' && <Bot_flores/>}
                                     {this.state.link === 'bot_dentista' && <Bot_dentista/>}

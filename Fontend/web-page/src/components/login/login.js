@@ -24,10 +24,7 @@ const WebcamCapture = () => {
                   foto: imageSrc
               })
           };
-          //Eliminar luego
-            sessionStorage.setItem("id", 2);
-          window.location.href = '/Inicio';
-          /*fetch(sessionStorage.getItem("url") + "/loginFoto", requestOptions).then(response => response.json()).then(data => {
+          fetch(sessionStorage.getItem("url") + "/loginFoto", requestOptions).then(response => response.json()).then(data => {
               if (data.error == "false"){
                   var msg = data.msg
                   console.log(msg)
@@ -40,7 +37,7 @@ const WebcamCapture = () => {
               } else {
                   document.getElementById("login_error").innerHTML = "Error, usuario o foto incorrecta"
               }
-          });*/
+          });
         },
         [webcamRef]
       );
@@ -77,8 +74,8 @@ class Login extends Component {
             reg_psw2: '',
             reg_files: [],
         };
-        sessionStorage.setItem('url', "http://balanceador-tres-semi-1263146624.us-east-2.elb.amazonaws.com:3000")
-        //sessionStorage.setItem('url', "http://3.143.248.15:3000")
+        //sessionStorage.setItem('url', "http://balanceador-tres-semi-1263146624.us-east-2.elb.amazonaws.com:3000")
+        sessionStorage.setItem('url', "http://3.83.40.84:3000")
         //sessionStorage.setItem('url', "http://18.118.171.241:3000")
     }
     login_setUser(evt){
