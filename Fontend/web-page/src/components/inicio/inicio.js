@@ -170,6 +170,7 @@ class Inicio extends Component {
                             <div class="tab-content profile-tab" id="myTabContent">
                                 <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
                                     {this.state.link === 'ver' && <Ver_Album/>}
+                                    {this.state.link === 'modifiar' && <Editar/>}
                                     {this.state.link === 'subir_fotos' && <Subir_fotos/>}
                                     {this.state.link === 'bot_reservacion' && <Bot_reservacion/>}
                                     {this.state.link === 'bot_flores' && <Bot_flores/>}

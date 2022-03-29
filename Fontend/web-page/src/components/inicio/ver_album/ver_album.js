@@ -179,8 +179,10 @@ class Ver_Album extends Component{
                                     </div>
                                     <p/>
                                 </div>
-                                <div class="profile-img">
-                                    <img src={this.state.foto} id="foto_ver" alt=""/>
+                                <div class="col-md-4">
+                                    <div class="profile-img">
+                                        <img src={this.state.foto} id="foto_ver" alt=""/>
+                                    </div>
                                 </div>
                                 <p>Nombre</p>
                                 {this.state.nombre}

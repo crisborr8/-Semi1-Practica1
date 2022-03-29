@@ -176,7 +176,7 @@ class Login extends Component {
         }
     }
     render(){
-        if (sessionStorage.getItem("id") !== '') return <Inicio/>
+        if (sessionStorage.getItem("id") !== '' && sessionStorage.getItem("id").length > 0) return <Inicio/>
         return (
           <>
               <head>

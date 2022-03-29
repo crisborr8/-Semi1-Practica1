@@ -26,7 +26,7 @@ class Bot_reservacion extends Component{
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
-                mensaje: this.state.mensaje
+                texto: this.state.mensaje
             })
         };
         fetch(sessionStorage.getItem("url") + "/botReservacion", requestOptions).then(response => response.json()).then(data => {
@@ -37,6 +37,7 @@ class Bot_reservacion extends Component{
                     conversacion: msj
                 })
             }
+            document.getElementById("msj").value="";
         });
     }
     render(){
