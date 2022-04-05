@@ -16,7 +16,7 @@ Integrantes
 
 
 **Arquitectura**
-![arq](images/arquitectura2.png)
+![arq](images/arquitecturap2.png)
 
 Para el desarrollo de la práctica se diseño una arquitectura AWS completamente en la nube
 Compuesta por
