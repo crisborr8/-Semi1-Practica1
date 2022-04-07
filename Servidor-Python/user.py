@@ -5,8 +5,6 @@ import hashlib
 import base64
 import os
 
-from itsdangerous import json
-
 @app.route('/newUser', methods=['POST'])
 def newUser():
     #result
@@ -258,6 +256,7 @@ def tagFotoPerfil():
             sonrisa = detalles['Smile']['Value']
             if (sonrisa):
                 cadena += ' esta sonriendo'
+            result['error'] = 'false'
             result['msg'] = cadena
         else:
             result['error'] = 'true'
