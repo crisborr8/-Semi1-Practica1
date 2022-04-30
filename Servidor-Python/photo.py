@@ -392,7 +392,7 @@ def detalleFoto():
         foto = {
             'nombre': row[0],
             'descripcion': row[1],
-            'valor': row[2],
+            'valor': os.environ['BUCKET_URL']+'Fotos_Publicadas/'+row[2]+'.jpg',
             'tags': '',
         }
         #query for tags
